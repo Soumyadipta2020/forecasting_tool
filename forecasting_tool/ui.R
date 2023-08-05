@@ -12,7 +12,7 @@ library(dplyr)
 # UI
 ui <- fluidPage(
   titlePanel("Forecasting Tool"),
-  theme = shinytheme("cerulean"),
+  theme = shinytheme("sandstone"),
   
   sidebarLayout(
     sidebarPanel(
@@ -41,6 +41,7 @@ ui <- fluidPage(
                                 ))
       ),
       actionButton("forecast", "Generate Forecast"),
+      br(),br(),
       downloadButton("download", "Download Forecast")
     ),
     mainPanel(
