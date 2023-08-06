@@ -8,6 +8,10 @@ library(tensorflow)
 library(keras)
 library(shinythemes)
 library(dplyr)
+library(randomForest)
+library(rpart)
+library(glmnet)
+library(Matrix)
 
 # UI
 ui <- fluidPage(
@@ -36,9 +40,8 @@ ui <- fluidPage(
       conditionalPanel(
         condition = "input.data_type == 'Non-Time Series'",
         selectInput("model1", "Select Model for Non-Time Series",
-                    choices = c("Linear Regression", "GLM", "Logistic Regression"
-                                # ,"Classification", "LASSO", "Ridge Regression"
-                                ))
+                    choices = c("Linear Regression", "GLM", "Logistic Regression",
+                                "LASSO", "Ridge Regression"))
       ),
       actionButton("forecast", "Generate Forecast"),
       br(),br(),

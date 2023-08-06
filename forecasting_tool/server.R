@@ -8,7 +8,11 @@ library(tensorflow)
 library(keras)
 library(shinythemes)
 library(dplyr)
+library(randomForest)
+library(rpart)
+library(glmnet)
 
+# Server
 # Server
 server <- function(input, output, session) {
   data <- reactive({
@@ -193,14 +197,30 @@ server <- function(input, output, session) {
                                          formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + "))),
                                          family = binomial)
                         model_fit
-                      })
-      
+                      },
+                      "LASSO" = {
+                        model_fit <- glmnet(x = as.matrix(data()[input$x_variables]), 
+                                            y = data()[input$response_variable][,1], alpha = 1)
+                        model_fit
+                      },
+                      "Ridge Regression" = {
+                        model_fit <- glmnet(x = as.matrix(data()[input$x_variables]), 
+                                            y = data()[input$response_variable][,1], alpha = 0)
+                        model_fit
+                      }
+      )
       
       if (!is.null(model)) {
         # Check if forecast function exists
-        forecast_values <- predict(model, newdata = data.frame(data()[input$x_variables]))
-        
-        forecast_values <- as.numeric(forecast_values)
+        if (input$model1 %in% c("Linear Regression", "GLM", "Logistic Regression")){
+          forecast_values <- predict(model, newdata = data.frame(data()[input$x_variables]))
+          forecast_values <- as.numeric(forecast_values)
+        } else if (input$model1 %in% c("Classification", "LASSO", "Ridge Regression")) {
+          # For non-time series data, use the fitted model to get forecasted values
+          forecast_values <- predict(model, newx = as.matrix(data()[input$x_variables]))
+          print(forecast_values)
+          forecast_values <- as.numeric(forecast_values)
+        }
         
       } else{
         NULL
