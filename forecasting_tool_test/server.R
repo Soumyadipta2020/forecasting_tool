@@ -11,7 +11,6 @@ library(dplyr)
 library(randomForest)
 library(rpart)
 library(glmnet)
-library(shinydashboard)
 
 # Server
 # Server
@@ -312,7 +311,7 @@ server <- function(input, output, session) {
   output$download <- downloadHandler(
     filename = function(){
       paste0("forecast_", if_else(input$data_type == "Time Series", input$model, input$model1), ".csv")
-    },
+      },
     content = function(file) {
       if (!is.null(forecastData())) {
         if(input$data_type == "Time Series"){

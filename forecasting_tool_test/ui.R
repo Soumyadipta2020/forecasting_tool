@@ -13,34 +13,20 @@ library(rpart)
 library(glmnet)
 library(Matrix)
 library(shinydashboard)
-library(dashboardthemes)
+
 
 dashboardPage(
-  skin = "blue",
   #### dashboard header ####
   dashboardHeader(
-    title = shinyDashboardLogoDIY(
-      textSize = 16,
-      boldText = "Forecasting Tool",
-      mainText = "",
-      badgeBackColor = "#40E0E9",
-      badgeTextColor = "black",
-      badgeText = "v.0.01",
-      badgeBorderRadius = 3
-    ),
+    title = "Forecasting Tool",
     # titleWidth = "200",
     
     #### Dropdown menu for messages ####
-    dropdownMenu(type = "messages", badgeStatus = "warning",
-                 messageItem("Issue",
+    dropdownMenu(type = "messages", badgeStatus = "success",
+                 messageItem("Updates",
                              "LSTM not working on web",
                              time = Sys.Date()
-                 ),
-                 messageItem("Limitations",
-                             "General Models showing predicted values",
-                             time = Sys.Date()
-                 )
-                 ),
+                 )),
     tags$li(class = "dropdown", 
             tags$a(href = "https://www.linkedin.com/in/soumyadipta-das/",
                    "Linked", icon("linkedin"), target = "_blank"
@@ -53,9 +39,7 @@ dashboardPage(
                      tags$i(class = "fa-regular fa-id-card"),
                      tags$span("  Soumyadipta Das")
                    ), target = "_blank"
-            ))#,
-    # tags$li(actionLink("openModal", label = "", icon = icon("info")),
-    #         class = "dropdown")
+            ))
   ),
   dashboardSidebar(
     #### Sidebar menu ####
@@ -71,7 +55,6 @@ dashboardPage(
       #### Forecasting tab ####
       tabItem(tabName = "Forecasting",
               tabBox(id = "tabbox_1", width = 12,
-                     #### Forecasting tabpanel ####
                      tabPanel("Forecasting", icon = icon("chart-line"), 
                               fluidPage(
                                 sidebarLayout(
