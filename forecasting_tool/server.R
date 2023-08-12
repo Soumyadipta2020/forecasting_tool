@@ -12,8 +12,8 @@ library(randomForest)
 library(rpart)
 library(glmnet)
 library(shinydashboard)
+library(dashboardthemes)
 
-# Server
 # Server
 server <- function(input, output, session) {
   data <- reactive({
@@ -294,7 +294,7 @@ server <- function(input, output, session) {
         add_trace(data = plot_data, x = ~x, y = ~y, type = "scatter", mode = "lines", name = "Data") %>%
         add_trace(data = forecast_plot_data, x = ~x, y = ~y, type = "scatter", mode = "lines", name = "Forecast") %>%
         layout(
-          title = "Time Series Data and Forecast",
+          title = "Actual Data and Forecast",
           xaxis = list(title = "Time"),
           yaxis = list(title = "Value")
         )
@@ -302,7 +302,7 @@ server <- function(input, output, session) {
       plot_ly() %>%
         add_trace(data = plot_data, x = ~x, y = ~y, type = "scatter", mode = "lines", name = "Data") %>%
         layout(
-          title = "Time Series Data",
+          title = "Actual Data",
           xaxis = list(title = "Time"),
           yaxis = list(title = "Value")
         )
