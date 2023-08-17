@@ -20,29 +20,30 @@ library(dashboardthemes)
 
 
 dashboardPage(
-  skin = "blue",
+  # skin = "blue",
   #### dashboard header ####
   dashboardHeader(
     title = shinyDashboardLogoDIY(
       textSize = 16,
       boldText = "Forecasting Tool",
       mainText = "",
-      badgeBackColor = "#40E0E9",
-      badgeTextColor = "black",
+      badgeBackColor = "#545454",
+      badgeTextColor = "white",
       badgeText = "v.0.01",
       badgeBorderRadius = 3
     ),
-    # titleWidth = "200",
     
     #### Dropdown menu for messages ####
-    dropdownMenu(type = "messages", badgeStatus = "warning",
+    dropdownMenu(type = "notifications", badgeStatus = "warning",
                  messageItem("Issue",
                              "LSTM not working on web",
-                             time = Sys.Date()
+                             time = Sys.Date(),
+                             icon = icon("circle-exclamation")
                  ),
                  messageItem("Limitations",
                              "General Models showing predicted values",
-                             time = Sys.Date()
+                             time = Sys.Date(),
+                             icon = icon("circle-exclamation")
                  )
     ),
     tags$li(class = "dropdown", 
@@ -61,8 +62,8 @@ dashboardPage(
     dropdownMenu(
       headerText = "",
       icon = icon("user"),
-      #   tags$figure(
-      #   img(src="brand logo.PNG",height=30,width=30)
+      # icon = tags$figure(
+      #   img(src="https://lh6.googleusercontent.com/8pvZAi7iQPOc933bIndP-lpbhRH3NAN6K-yS5NYq_WUEgrWafnWTRR67K8TkfdJS7BH-Q4k1r71zsO4iDaAvd_g=w16383",height=30,width=30)
       # ),
       badgeStatus = NULL,
       tags$li(
@@ -91,6 +92,7 @@ dashboardPage(
     )
   ),
   dashboardSidebar(
+    use_theme(dashboard_sidebar_theme),
     #### Sidebar menu ####
     sidebarMenu(
       id = "sidebar",
@@ -100,6 +102,7 @@ dashboardPage(
     )
   ),
   dashboardBody(
+    use_theme(dashboard_body_theme),
     tabItems(
       #### Forecasting tab ####
       tabItem(tabName = "Forecasting",
