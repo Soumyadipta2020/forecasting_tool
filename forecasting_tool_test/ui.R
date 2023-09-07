@@ -35,14 +35,19 @@ dashboardPage(
     
     #### Dropdown menu for messages ####
     dropdownMenu(type = "notifications", badgeStatus = "warning",
+                 messageItem("Feature",
+                             "File template & error handling added",
+                             time = "2023-09-07",
+                             icon = icon("square-check")
+                 ),
                  messageItem("Issue",
                              "LSTM not working on web",
-                             time = Sys.Date(),
+                             time = "2023-08-17",
                              icon = icon("circle-exclamation")
                  ),
                  messageItem("Limitations",
                              "General Models showing predicted values",
-                             time = Sys.Date(),
+                             time = "2023-08-17",
                              icon = icon("circle-exclamation")
                  )
     ),
@@ -113,6 +118,8 @@ dashboardPage(
                                 sidebarLayout(
                                   sidebarPanel(
                                     fileInput("file", "Upload Your File (.csv supported)"),
+                                    shinyFeedback::useShinyFeedback(),
+                                    downloadButton("file_template_download", "Download template file"), br(), br(),
                                     selectInput("data_type", "Select Data Type",
                                                 choices = c("Time Series", "Non-Time Series")),
                                     uiOutput("response_variable"),

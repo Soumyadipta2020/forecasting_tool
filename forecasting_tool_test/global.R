@@ -1,3 +1,18 @@
+library(shiny)
+library(plotly)
+library(forecast)
+library(rugarch)
+library(reticulate)
+library(h2o)
+library(tensorflow)
+library(keras)
+library(shinythemes)
+library(dplyr)
+library(randomForest)
+library(rpart)
+library(glmnet)
+library(shinydashboard)
+library(dashboardthemes)
 library(fresh)
 
 dashboard_header_theme <- create_theme(
@@ -29,4 +44,94 @@ dashboard_body_theme <- create_theme(
   ),
   output_file = NULL
 )
+
+#### Forecasting functions ####
+#### LSTM ####
+lstm_forecast <- function(ts_data, horizon) {
+  library(keras)
+
+  # Normalize the data
+  normalized_data <- scale(ts_data)
+
+  # Split data into train and test sets
+  train_data <- normalized_data[1:(length(normalized_data) - horizon)]
+  test_data <- normalized_data[(length(normalized_data) - horizon + 1):length(normalized_data)]
+
+  # Prepare the training data
+  train_x <- train_y <- list()
+  for (i in 1:(length(train_data) - horizon)) {
+    train_x[[i]] <- matrix(train_data[i:(i + horizon - 1)], nrow = horizon, ncol = 1)
+    train_y[[i]] <- train_data[(i + horizon)]
+  }
+
+  train_x <- array_reshape(train_x, c(length(train_x), horizon, 1))
+  train_y <- unlist(train_y)
+
+  # Define the LSTM model architecture
+  model <- keras_model_sequential()
+  model %>%
+    layer_lstm(units = 50, input_shape = c(horizon, 1)) %>%
+    layer_dense(units = 1)
+
+  # Compile the model
+  model %>% compile(
+    loss = "mean_squared_error",
+    optimizer = optimizer_adam()
+  )
+
+  # Train the model
+  model %>% fit(
+    train_x, train_y,
+    epochs = 100,
+    batch_size = 32,
+    verbose = 0
+  )
+
+  # Make predictions for the test set
+  test_x <- array_reshape(test_data, dim = c(length(test_data) / horizon, horizon, 1))
+  predicted_values <- model %>% predict(test_x)
+
+  # Denormalize the predicted values
+  denormalized_values <- predicted_values * sd(ts_data) + mean(ts_data)
+
+  # Create the forecast object
+  forecast_values <- ts(denormalized_values, frequency = 12)
+
+  return(forecast_values)
+}
+
+#### AutoML ####
+automl_forecast <- function(ts_data, horizon) {
+  # Convert the time series data to a data frame
+  data_df <- data.frame(Date = as.numeric(time(ts_data)), Value = as.numeric(ts_data))
+  
+  # Initialize the H2O cluster
+  h2o.init()
+  
+  # Convert the data frame to an H2O frame
+  h2o_df <- as.h2o(data_df, destination_frame = "ts_data")
+  
+  # Set the target variable
+  target <- "Value"
+  
+  # Train AutoML model
+  aml <- h2o.automl(x = setdiff(colnames(h2o_df), target),
+                    y = target,
+                    training_frame = h2o_df,
+                    max_runtime_secs = 300,
+                    max_models = 10)
+  
+  # Generate predictions for the future horizon
+  forecast_df <- data.frame(Date = seq(time(ts_data)[length(ts_data)] + 1/12, by = 1/12, length.out = horizon))
+  forecast_h2o <- as.h2o(forecast_df, destination_frame = "forecast_data")
+  forecast_predictions <- h2o.predict(aml@leader, forecast_h2o)
+  
+  # Convert the predictions to a time series object
+  forecast_values <- ts(as.vector(forecast_predictions$predict), frequency = 12)
+  
+  # Shut down the H2O cluster
+  h2o.shutdown(prompt = FALSE)
+  
+  return(forecast_values)
+}
 
