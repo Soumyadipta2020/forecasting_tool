@@ -75,20 +75,20 @@ dashboardPage(
         class = "dropdown",
         HTML("<!-- group {'layout':{'type':'constrained'}} -->
               <div class='wp-block-group'><!-- media-text {'mediaId':61,'mediaType':'image'} -->
-              <div class='wp-block-media-text is-stacked-on-mobile'><figure class='wp-block-media-text__media'><img src='self.JPG' alt='' class='wp-image-61 width='75' height='75' '/></figure><div class='wp-block-media-text__content'><!-- paragraph {'placeholder':'Content…'} -->
-              <p><strong>Soumyadipta Das</strong></p>
+              <div class='wp-block-media-text is-stacked-on-mobile'><figure style = 'margin-left:15px;' class='wp-block-media-text__media'><img src='self.JPG' alt='' class='wp-image-61 width='75' height='75' '/></figure><div class='wp-block-media-text__content'><!-- paragraph {'placeholder':'Content…'} -->
+              <p style = 'margin-left:15px;'><strong>Soumyadipta Das</strong></p>
               <!-- /paragraph -->
               
               <!-- paragraph -->
-              <p>Lead Assistant Manager, EXL</p>
+              <p style = 'margin-left:15px;'>Lead Assistant Manager, EXL</p>
               <!-- /paragraph -->
               
               <!-- paragraph {'fontSize':'small'} -->
-              <p class='has-small-font-size'>Website - <a href='https://sites.google.com/view/soumyadipta-das'>Soumyadipta Das</a></p>
+              <p style = 'margin-left:15px;' class='has-small-font-size'>Website - <a href='https://sites.google.com/view/soumyadipta-das'>Soumyadipta Das</a></p>
               <!-- /paragraph -->
               
               <!-- paragraph {'fontSize':'small'} -->
-              <p class='has-small-font-size'>Email - <a href='mailto:soumyadipta_das@consultant.com'>soumyadipta_das@consultant.com</a></p>
+              <p style = 'margin-left:15px;' class='has-small-font-size'>Email - <a href='mailto:soumyadipta_das@consultant.com'>soumyadipta_das@consultant.com</a></p>
               <!-- /paragraph --></div></div>
               <!-- /media-text --></div>
               <!-- /group -->"
