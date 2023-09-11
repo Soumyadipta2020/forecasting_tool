@@ -16,22 +16,19 @@ library(rpart)
 library(glmnet)
 library(Matrix)
 library(shinydashboard)
+library(shinydashboardPlus)
 library(dashboardthemes)
 
 
 dashboardPage(
+  options = list(sidebarExpandOnHover = TRUE),
   # skin = "blue",
   #### dashboard header ####
   dashboardHeader(
-    title = shinyDashboardLogoDIY(
-      textSize = 16,
-      boldText = "Forecasting Tool",
-      mainText = "",
-      badgeBackColor = "#545454",
-      badgeTextColor = "white",
-      badgeText = "v.0.01",
-      badgeBorderRadius = 3
-    ),
+    title = HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
+                       "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>", 
+                       "&nbsp; v.0.01 &nbsp;", "</span>")),
+    titleWidth = 200,
     
     #### Dropdown menu for messages ####
     dropdownMenu(type = "notifications", badgeStatus = "warning",
@@ -55,15 +52,15 @@ dashboardPage(
             tags$a(href = "https://www.linkedin.com/in/soumyadipta-das/",
                    "Linked", icon("linkedin"), target = "_blank"
             )), 
-    tags$li(class = "dropdown", 
-            tags$a(href = "https://sites.google.com/view/soumyadipta-das",
-                   tags$script(src = "https://kit.fontawesome.com/b8fb1ea7bd.js"),
-                   icon = NULL,
-                   tags$div(
-                     tags$i(class = "fa-regular fa-id-card"),
-                     tags$span("  Soumyadipta Das")
-                   ), target = "_blank"
-            )),
+    # tags$li(class = "dropdown", 
+    #         tags$a(href = "https://sites.google.com/view/soumyadipta-das",
+    #                tags$script(src = "https://kit.fontawesome.com/b8fb1ea7bd.js"),
+    #                icon = NULL,
+    #                tags$div(
+    #                  tags$i(class = "fa-regular fa-id-card"),
+    #                  tags$span("  Soumyadipta Das")
+    #                ), target = "_blank"
+    #         )),
     dropdownMenu(
       headerText = "",
       icon = icon("user"),
@@ -73,25 +70,25 @@ dashboardPage(
       badgeStatus = NULL,
       tags$li(
         class = "dropdown",
-        HTML("<!-- wp:group {'layout':{'type':'constrained'}} -->
-              <div class='wp-block-group'><!-- wp:media-text {'mediaId':61,'mediaType':'image'} -->
-              <div class='wp-block-media-text is-stacked-on-mobile'><figure class='wp-block-media-text__media'><img src='self.JPG' alt='' class='wp-image-61 width='75' height='75' '/></figure><div class='wp-block-media-text__content'><!-- wp:paragraph {'placeholder':'Content…'} -->
-              <p><strong>Soumyadipta Das</strong></p>
-              <!-- /wp:paragraph -->
+        HTML("<!-- group {'layout':{'type':'constrained'}} -->
+              <div class='wp-block-group'><!-- media-text {'mediaId':61,'mediaType':'image'} -->
+              <div class='wp-block-media-text is-stacked-on-mobile'><figure style = 'margin-left:15px;' class='wp-block-media-text__media'><img src='self.JPG' alt='' class='wp-image-61 width='75' height='75' '/></figure><div class='wp-block-media-text__content'><!-- paragraph {'placeholder':'Content…'} -->
+              <p style = 'margin-left:15px;'><strong>Soumyadipta Das</strong></p>
+              <!-- /paragraph -->
               
-              <!-- wp:paragraph -->
-              <p>Lead Assistant Manager, EXL</p>
-              <!-- /wp:paragraph -->
+              <!-- paragraph -->
+              <p style = 'margin-left:15px;'>Lead Assistant Manager, EXL</p>
+              <!-- /paragraph -->
               
-              <!-- wp:paragraph {'fontSize':'small'} -->
-              <p class='has-small-font-size'>Website - <a href='https://sites.google.com/view/soumyadipta-das'>Soumyadipta Das</a></p>
-              <!-- /wp:paragraph -->
+              <!-- paragraph {'fontSize':'small'} -->
+              <p style = 'margin-left:15px;' class='has-small-font-size'>Website - <a href='https://sites.google.com/view/soumyadipta-das'>Soumyadipta Das</a></p>
+              <!-- /paragraph -->
               
-              <!-- wp:paragraph {'fontSize':'small'} -->
-              <p class='has-small-font-size'>Email - <a href='mailto:soumyadipta_das@consultant.com'>soumyadipta_das@consultant.com</a></p>
-              <!-- /wp:paragraph --></div></div>
-              <!-- /wp:media-text --></div>
-              <!-- /wp:group -->"
+              <!-- paragraph {'fontSize':'small'} -->
+              <p style = 'margin-left:15px;' class='has-small-font-size'>Email - <a href='mailto:soumyadipta_das@consultant.com'>soumyadipta_das@consultant.com</a></p>
+              <!-- /paragraph --></div></div>
+              <!-- /media-text --></div>
+              <!-- /group -->"
         )
       )
     )
@@ -155,6 +152,7 @@ dashboardPage(
               )
       )
     )
-  )
+  )#,
+  # controlbar = dashboardControlbar()
 )
 

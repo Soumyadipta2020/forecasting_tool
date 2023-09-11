@@ -16,22 +16,19 @@ library(rpart)
 library(glmnet)
 library(Matrix)
 library(shinydashboard)
+library(shinydashboardPlus)
 library(dashboardthemes)
 
 
 dashboardPage(
+  options = list(sidebarExpandOnHover = TRUE),
   # skin = "blue",
   #### dashboard header ####
   dashboardHeader(
-    title = shinyDashboardLogoDIY(
-      textSize = 16,
-      boldText = "Forecasting Tool",
-      mainText = "",
-      badgeBackColor = "#545454",
-      badgeTextColor = "white",
-      badgeText = "v.0.01",
-      badgeBorderRadius = 3
-    ),
+    title = HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
+                       "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>", 
+                       "&nbsp; v.0.01 &nbsp;", "</span>")),
+    titleWidth = 200,
     
     #### Dropdown menu for messages ####
     dropdownMenu(type = "notifications", badgeStatus = "warning",
@@ -155,6 +152,7 @@ dashboardPage(
               )
       )
     )
-  )
+  )#,
+  # controlbar = dashboardControlbar()
 )
 
