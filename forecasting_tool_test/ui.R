@@ -18,6 +18,7 @@ library(Matrix)
 library(shinydashboard)
 library(shinydashboardPlus)
 library(dashboardthemes)
+library(DT)
 
 
 dashboardPage(
@@ -27,11 +28,16 @@ dashboardPage(
   dashboardHeader(
     title = HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
                        "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>", 
-                       "&nbsp; v.0.01 &nbsp;", "</span>")),
+                       "&nbsp; v.0.02 &nbsp;", "</span>")),
     titleWidth = 200,
     
     #### Dropdown menu for messages ####
     dropdownMenu(type = "notifications", badgeStatus = "warning",
+                 messageItem("Feature",
+                             "Data visualization and editing added",
+                             time = "2023-09-16",
+                             icon = icon("square-check")
+                 ),
                  messageItem("Feature",
                              "File template & error handling added",
                              time = "2023-09-07",
@@ -100,7 +106,7 @@ dashboardPage(
       id = "sidebar",
       
       #### menuitem ####
-      menuItem("Forecasting_tab", tabName = "Forecasting", icon = icon("chart-line"))
+      menuItem("Forecasting", tabName = "Forecasting", icon = icon("chart-line"))
     )
   ),
   dashboardBody(
@@ -109,14 +115,30 @@ dashboardPage(
       #### Forecasting tab ####
       tabItem(tabName = "Forecasting",
               tabBox(id = "tabbox_1", width = 12,
+                     #### Data Upload and visualization Tabpanel ####
+                     tabPanel(
+                       "Data Visualization", icon = icon("table"),
+                       fluidPage(
+                         fileInput("file", "Upload Your File (.csv supported)"),
+                         shinyFeedback::useShinyFeedback(),
+                         splitLayout(downloadButton("file_template_download", "Download template file"),
+                                     actionButton("upload_data", "Upload data")
+                                     ),
+                         br(), br(),
+                         fluidRow(
+                           box(title = "Uploaded Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                               width = 12,
+                               dataTableOutput("uploaded_data")
+                           )
+                         )
+                       )
+                     ),
+                     
                      #### Forecasting tabpanel ####
                      tabPanel("Forecasting", icon = icon("chart-line"), 
                               fluidPage(
                                 sidebarLayout(
                                   sidebarPanel(
-                                    fileInput("file", "Upload Your File (.csv supported)"),
-                                    shinyFeedback::useShinyFeedback(),
-                                    downloadButton("file_template_download", "Download template file"), br(), br(),
                                     selectInput("data_type", "Select Data Type",
                                                 choices = c("Time Series", "Non-Time Series")),
                                     uiOutput("response_variable"),

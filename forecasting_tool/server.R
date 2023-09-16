@@ -26,7 +26,7 @@ server <- function(input, output, session) {
     }
   )
   
-  data <- reactive({
+  data_old <- reactive({
     req(input$file)
     df <- read.csv(input$file$datapath)
     
@@ -41,9 +41,37 @@ server <- function(input, output, session) {
       shinyFeedback::feedbackSuccess("file", col_type_check, "Successfully Uploaded.")
       req(col_type_check)
       
+      output$uploaded_data <- renderDT(df, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+      
+      df1 <<- df
+      
+      # data edit step note
+      observeEvent(input$uploaded_data_cell_edit, {
+        info = input$uploaded_data_cell_edit
+        str(info)
+        i = info$row
+        j = info$col + 1
+        v = info$value
+        df1[i, j] <<- v
+        output$uploaded_data <- renderDT(df1, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+        temp <- data.frame(row = i, col = j, value = v)
+        data_edit <<- rbind(data_edit, temp)
+      })
+      
       return(df)
     }
   })
+  
+  data <- reactive({
+    df <- data_old()
+    req(input$upload_data != 0)
+    data_edit_1 <- data_edit %>% tidyr::drop_na()
+    for(k in 1:nrow(data_edit_1)){
+      df[data_edit_1[k, 1], data_edit_1[k, 2]] <- data_edit_1[k, 3]
+    }
+    return(df)
+  })
+  
   
   output$response_variable <- renderUI({
     req(data())
@@ -52,7 +80,7 @@ server <- function(input, output, session) {
   })
   
   output$x_variables <- renderUI({
-    req(data(), input$response_variable, input$data_type)
+    req(data(), input$response_variable, input$data_type, input$upload_data)
     if (input$data_type == "Non-Time Series") {
       selectInput("x_variables", "Select X Variables",
                   choices = setdiff(colnames(data()), input$response_variable),

@@ -15,6 +15,10 @@ library(shinydashboard)
 library(dashboardthemes)
 library(fresh)
 
+#### data edit ####
+data_edit <<- data.frame(row = NA, col = NA, value = NA)
+
+#### Theme ####
 dashboard_header_theme <- create_theme(
   adminlte_color(
     light_blue = "#E7FF6E"
@@ -49,36 +53,36 @@ dashboard_body_theme <- create_theme(
 #### LSTM ####
 lstm_forecast <- function(ts_data, horizon) {
   library(keras)
-
+  
   # Normalize the data
   normalized_data <- scale(ts_data)
-
+  
   # Split data into train and test sets
   train_data <- normalized_data[1:(length(normalized_data) - horizon)]
   test_data <- normalized_data[(length(normalized_data) - horizon + 1):length(normalized_data)]
-
+  
   # Prepare the training data
   train_x <- train_y <- list()
   for (i in 1:(length(train_data) - horizon)) {
     train_x[[i]] <- matrix(train_data[i:(i + horizon - 1)], nrow = horizon, ncol = 1)
     train_y[[i]] <- train_data[(i + horizon)]
   }
-
+  
   train_x <- array_reshape(train_x, c(length(train_x), horizon, 1))
   train_y <- unlist(train_y)
-
+  
   # Define the LSTM model architecture
   model <- keras_model_sequential()
   model %>%
     layer_lstm(units = 50, input_shape = c(horizon, 1)) %>%
     layer_dense(units = 1)
-
+  
   # Compile the model
   model %>% compile(
     loss = "mean_squared_error",
     optimizer = optimizer_adam()
   )
-
+  
   # Train the model
   model %>% fit(
     train_x, train_y,
@@ -86,17 +90,17 @@ lstm_forecast <- function(ts_data, horizon) {
     batch_size = 32,
     verbose = 0
   )
-
+  
   # Make predictions for the test set
   test_x <- array_reshape(test_data, dim = c(length(test_data) / horizon, horizon, 1))
   predicted_values <- model %>% predict(test_x)
-
+  
   # Denormalize the predicted values
   denormalized_values <- predicted_values * sd(ts_data) + mean(ts_data)
-
+  
   # Create the forecast object
   forecast_values <- ts(denormalized_values, frequency = 12)
-
+  
   return(forecast_values)
 }
 
