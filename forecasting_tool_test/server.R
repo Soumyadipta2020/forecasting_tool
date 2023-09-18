@@ -66,8 +66,10 @@ server <- function(input, output, session) {
     df <- data_old()
     req(input$upload_data != 0)
     data_edit_1 <- data_edit %>% tidyr::drop_na()
-    for(k in 1:nrow(data_edit_1)){
-      df[data_edit_1[k, 1], data_edit_1[k, 2]] <- data_edit_1[k, 3]
+    if(nrow(data_edit_1) != 0){
+      for(k in 1:nrow(data_edit_1)){
+        df[data_edit_1[k, 1], data_edit_1[k, 2]] <- data_edit_1[k, 3]
+      }
     }
     return(df)
   })
