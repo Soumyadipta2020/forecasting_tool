@@ -12,18 +12,18 @@ library(randomForest)
 library(rpart)
 library(glmnet)
 library(shinydashboard)
-library(dashboardthemes)
 library(fresh)
 
 #### data edit ####
 data_edit <<- data.frame(row = NA, col = NA, value = NA)
 
 #### Theme ####
-dashboard_header_theme <- create_theme(
-  adminlte_color(
-    light_blue = "#E7FF6E"
-  )
-)
+# dashboard_header_theme <- create_theme(
+#   theme = "default",
+#   adminlte_color(
+#     light_blue = "#E7FF6E"
+#   )
+# )
 
 #### dashboard sidebar theme ####
 dashboard_sidebar_theme <- create_theme( 
@@ -38,7 +38,7 @@ dashboard_body_theme <- create_theme(
   theme = "cosmo",
   bs_vars_button(
     default_color = "#FFF",
-    default_bg = "#112446",
+    default_bg = "#0066cc",
     default_border = "#112446",
     border_radius_base = "15px"
   ),

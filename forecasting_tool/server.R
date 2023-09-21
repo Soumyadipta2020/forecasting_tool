@@ -12,7 +12,6 @@ library(randomForest)
 library(rpart)
 library(glmnet)
 library(shinydashboard)
-library(dashboardthemes)
 
 # Server
 server <- function(input, output, session) {
