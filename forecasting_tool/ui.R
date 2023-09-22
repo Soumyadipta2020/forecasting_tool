@@ -21,7 +21,7 @@ library(DT)
 
 
 
-dashboardPage(
+shinydashboardPlus::dashboardPage(
   title = "Forecasting Tool",
   # options = list(sidebarExpandOnHover = TRUE),
   # skin = "blue",
@@ -271,8 +271,8 @@ dashboardPage(
               )
       )
     )
-  ),
+  )#,
   # controlbar = dashboardControlbar(),
-  dashboardFooter(right = "2023", left = "")
+  # dashboardFooter(right = "2023", left = "")
 )
 
