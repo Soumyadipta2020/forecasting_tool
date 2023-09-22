@@ -20,16 +20,17 @@ library(shinydashboardPlus)
 library(DT)
 
 
+
 dashboardPage(
-  options = list(sidebarExpandOnHover = TRUE),
+  title = "Forecasting Tool",
+  # options = list(sidebarExpandOnHover = TRUE),
   # skin = "blue",
   #### dashboard header ####
   dashboardHeader(
     title = HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
-                       "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>", 
+                       "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
                        "&nbsp; v.0.02 &nbsp;", "</span>")),
-    titleWidth = 200,
-    
+    titleWidth = 200, 
     #### Dropdown menu for messages ####
     dropdownMenu(type = "notifications", badgeStatus = "warning",
                  messageItem("Feature",
@@ -43,7 +44,7 @@ dashboardPage(
                              icon = icon("square-check")
                  ),
                  messageItem("Issue",
-                             "LSTM not working on web",
+                             "LSTM sometimes not working on web",
                              time = "2023-08-17",
                              icon = icon("circle-exclamation")
                  ),
@@ -53,10 +54,10 @@ dashboardPage(
                              icon = icon("circle-exclamation")
                  )
     ),
-    tags$li(class = "dropdown", 
-            tags$a(href = "https://www.linkedin.com/in/soumyadipta-das/",
-                   "Linked", icon("linkedin"), target = "_blank"
-            )), 
+    # tags$li(class = "dropdown", 
+    #         tags$a(href = "https://www.linkedin.com/in/soumyadipta-das/",
+    #                "Linked", icon("linkedin"), target = "_blank"
+    #         )), 
     # tags$li(class = "dropdown", 
     #         tags$a(href = "https://sites.google.com/view/soumyadipta-das",
     #                tags$script(src = "https://kit.fontawesome.com/b8fb1ea7bd.js"),
@@ -66,39 +67,40 @@ dashboardPage(
     #                  tags$span("  Soumyadipta Das")
     #                ), target = "_blank"
     #         )),
-    dropdownMenu(
-      headerText = "",
-      icon = icon("user"),
+    # dropdownMenu(
+    #   headerText = "",
+    #   icon = icon("user"),
       # icon = tags$figure(
       #   img(src="https://lh6.googleusercontent.com/8pvZAi7iQPOc933bIndP-lpbhRH3NAN6K-yS5NYq_WUEgrWafnWTRR67K8TkfdJS7BH-Q4k1r71zsO4iDaAvd_g=w16383",height=30,width=30)
       # ),
-      badgeStatus = NULL,
-      tags$li(
-        class = "dropdown",
-        HTML("<!-- group {'layout':{'type':'constrained'}} -->
-              <div class='wp-block-group'><!-- media-text {'mediaId':61,'mediaType':'image'} -->
-              <div class='wp-block-media-text is-stacked-on-mobile'><figure style = 'margin-left:15px;' class='wp-block-media-text__media'><img src='self.JPG' alt='' class='wp-image-61 width='75' height='75' '/></figure><div class='wp-block-media-text__content'><!-- paragraph {'placeholder':'Content…'} -->
-              <p style = 'margin-left:15px;'><strong>Soumyadipta Das</strong></p>
-              <!-- /paragraph -->
-              
-              <!-- paragraph -->
-              <p style = 'margin-left:15px;'>Lead Assistant Manager, EXL</p>
-              <!-- /paragraph -->
-              
-              <!-- paragraph {'fontSize':'small'} -->
-              <p style = 'margin-left:15px;' class='has-small-font-size'>Website - <a href='https://sites.google.com/view/soumyadipta-das'>Soumyadipta Das</a></p>
-              <!-- /paragraph -->
-              
-              <!-- paragraph {'fontSize':'small'} -->
-              <p style = 'margin-left:15px;' class='has-small-font-size'>Email - <a href='mailto:soumyadipta_das@consultant.com'>soumyadipta_das@consultant.com</a></p>
-              <!-- /paragraph --></div></div>
-              <!-- /media-text --></div>
-              <!-- /group -->"
-        )
-      )
-    )
+    #   badgeStatus = NULL,
+    #   tags$li(
+    #     class = "dropdown",
+    #     HTML("<!-- group {'layout':{'type':'constrained'}} -->
+    #           <div class='wp-block-group'><!-- media-text {'mediaId':61,'mediaType':'image'} -->
+    #           <div class='wp-block-media-text is-stacked-on-mobile'><figure style = 'margin-left:15px;' class='wp-block-media-text__media'><img src='self.JPG' alt='' class='wp-image-61 width='75' height='75' '/></figure><div class='wp-block-media-text__content'><!-- paragraph {'placeholder':'Content…'} -->
+    #           <p style = 'margin-left:15px;'><strong>Soumyadipta Das</strong></p>
+    #           <!-- /paragraph -->
+    #           
+    #           <!-- paragraph -->
+    #           <p style = 'margin-left:15px;'>Lead Assistant Manager, EXL</p>
+    #           <!-- /paragraph -->
+    #           
+    #           <!-- paragraph {'fontSize':'small'} -->
+    #           <p style = 'margin-left:15px;' class='has-small-font-size'>Website - <a href='https://sites.google.com/view/soumyadipta-das'>Soumyadipta Das</a></p>
+    #           <!-- /paragraph -->
+    #           
+    #           <!-- paragraph {'fontSize':'small'} -->
+    #           <p style = 'margin-left:15px;' class='has-small-font-size'>Email - <a href='mailto:soumyadipta_das@consultant.com'>soumyadipta_das@consultant.com</a></p>
+    #           <!-- /paragraph --></div></div>
+    #           <!-- /media-text --></div>
+    #           <!-- /group -->"
+    #     )
+    #   )
+    # ),
+    userOutput("user")
   ),
-  dashboardSidebar(
+  dashboardSidebar(#minified = TRUE, collapsed = TRUE,
     use_theme(dashboard_sidebar_theme),
     #### Sidebar menu ####
     sidebarMenu(
@@ -110,7 +112,24 @@ dashboardPage(
   ),
   dashboardBody(
     use_theme(dashboard_body_theme),
+    # tags$head(tags$style(HTML(
+    #   '.myClass { 
+    #     font-size: 16px;
+    #     line-height: 50px;
+    #     text-align: centre;
+    #     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    #     padding: 0 15px;
+    #     overflow: hidden;
+    #     color: white;
+    #   }
+    # '))),
+    # tags$script(HTML('
+    #   $(document).ready(function() {
+    #     $("header").find("nav").append(\'<span class="myClass" style="font-size: 16px;"> Forecasting Tool </span> <span class="version-badge" style="border-radius: 10px; font-size: small; background-color: #545454; color: white;"> &nbsp; v.0.02 &nbsp;  </span> \');
+    #   })
+    #  ')),
     tags$head(tags$style(HTML('
+    
         /* logo */
         .skin-blue .main-header .logo {
                               background-color: #0066cc;
@@ -179,7 +198,7 @@ dashboardPage(
             background-color: #cce6ff;
         }*/
         
-        .nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {
+        /*.nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {
             /*background-color: #99ccff;*/
             border-color: black;
         }
@@ -187,7 +206,6 @@ dashboardPage(
         .nav-tabs-custom .nav-tabs li.active {
             border-top-color: black;
         }
-        
         
          '))),
     tabItems(
@@ -253,7 +271,8 @@ dashboardPage(
               )
       )
     )
-  )#,
-  # controlbar = dashboardControlbar()
+  ),
+  # controlbar = dashboardControlbar(),
+  dashboardFooter(right = "2023", left = "")
 )
 

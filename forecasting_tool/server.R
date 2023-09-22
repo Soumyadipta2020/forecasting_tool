@@ -15,6 +15,46 @@ library(shinydashboard)
 
 # Server
 server <- function(input, output, session) {
+  output$user <- renderUser({
+    myDashboardUser(
+      name = "Soumyadipta Das", 
+      image = "self.jpg", 
+      title = "Consultant II @ EXL",
+      subtitle = "Author", 
+      # footer = p("The footer", class = "text-center"),
+      fluidRow(
+        dashboardUserItem(
+          width = 6,
+          socialButton(
+            href = "https://sites.google.com/view/soumyadipta-das",
+            icon = icon("user")
+          )
+        ),
+        dashboardUserItem(
+          width = 6,
+          socialButton(
+            href = "https://www.linkedin.com/in/soumyadipta-das/",
+            icon = icon("linkedin-in")
+          )
+        ),
+        dashboardUserItem(
+          width = 6,
+          socialButton(
+            href = "mailto:soumyadipta_das@consultant.com",
+            icon = icon("envelope")
+          )
+        ),
+        dashboardUserItem(
+          width = 6,
+          socialButton(
+            href = "https://github.com/Soumyadipta2020/",
+            icon = icon("square-github")
+          )
+        )
+      )
+    )
+  })
+  
   output$file_template_download <- downloadHandler(
     filename = function(){
       paste("Sample data", ".csv", sep = "")
