@@ -1,18 +1,3 @@
-library(shiny)
-library(plotly)
-library(forecast)
-library(rugarch)
-library(reticulate)
-library(h2o)
-library(tensorflow)
-library(keras)
-library(shinythemes)
-library(dplyr)
-library(randomForest)
-library(rpart)
-library(glmnet)
-library(shinydashboard)
-
 # Server
 server <- function(input, output, session) {
   output$user <- renderUser({
@@ -110,6 +95,12 @@ server <- function(input, output, session) {
         df[data_edit_1[k, 1], data_edit_1[k, 2]] <- data_edit_1[k, 3]
       }
     }
+     ##### Outlier treatment #####
+    for(i in 2:ncol(df)){
+      value = df[,i][df[,i] %in% boxplot.stats(df[,i])$out]
+      df[,i][df[,i] %in% value] = median(df[,i])
+    }
+    
     return(df)
   })
   

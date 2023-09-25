@@ -1,38 +1,21 @@
-rm(list=ls())
-
-#### Library ####
-library(shiny)
-library(plotly)
-library(forecast)
-library(rugarch)
-library(reticulate)
-library(h2o)
-library(tensorflow)
-library(keras)
-library(shinythemes)
-library(dplyr)
-library(randomForest)
-library(rpart)
-library(glmnet)
-library(Matrix)
-library(shinydashboard)
-library(shinydashboardPlus)
-library(DT)
-
-
-
-shinydashboardPlus::dashboardPage(
+#### UI ####
+ui <- dashboardPage(
   title = "Forecasting Tool",
+  preloader = list(),
   # options = list(sidebarExpandOnHover = TRUE),
-  # skin = "blue",
   #### dashboard header ####
-  dashboardHeader(
+  header = dashboardHeader(
     title = HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
                        "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
                        "&nbsp; v.0.02 &nbsp;", "</span>")),
     titleWidth = 200, 
-    #### Dropdown menu for messages ####
+    ##### Dropdown menu for messages #####
     dropdownMenu(type = "notifications", badgeStatus = "warning",
+                 messageItem("Feature",
+                             "Outlier treatment added",
+                             time = "2023-09-25",
+                             icon = icon("square-check")
+                 ),
                  messageItem("Feature",
                              "Data visualization and editing added",
                              time = "2023-09-16",
@@ -100,17 +83,18 @@ shinydashboardPlus::dashboardPage(
     # ),
     userOutput("user")
   ),
-  dashboardSidebar(#minified = TRUE, collapsed = TRUE,
+  #### Sidebar ####
+  sidebar = dashboardSidebar(#minified = TRUE, collapsed = TRUE,
     use_theme(dashboard_sidebar_theme),
-    #### Sidebar menu ####
+    ##### Sidebar menu #####
     sidebarMenu(
       id = "sidebar",
       
-      #### menuitem ####
+      ###### menuitem ######
       menuItem("Forecasting", tabName = "Forecasting", icon = icon("chart-line"))
     )
   ),
-  dashboardBody(
+  body = dashboardBody(
     use_theme(dashboard_body_theme),
     # tags$head(tags$style(HTML(
     #   '.myClass { 
@@ -271,8 +255,7 @@ shinydashboardPlus::dashboardPage(
               )
       )
     )
-  )#,
-  # controlbar = dashboardControlbar(),
-  # dashboardFooter(right = "2023", left = "")
+  ),
+  footer = dashboardFooter(right = "2023", left = "By Soumyadipta Das")
 )
 

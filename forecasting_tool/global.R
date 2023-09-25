@@ -1,3 +1,6 @@
+rm(list=ls())
+
+#### Library ####
 library(shiny)
 library(plotly)
 library(forecast)
@@ -11,7 +14,10 @@ library(dplyr)
 library(randomForest)
 library(rpart)
 library(glmnet)
+library(Matrix)
 library(shinydashboard)
+library(shinydashboardPlus)
+library(DT)
 library(fresh)
 
 #### data edit ####
@@ -196,5 +202,4 @@ automl_forecast <- function(ts_data, horizon) {
   
   return(forecast_values)
 }
-
 
