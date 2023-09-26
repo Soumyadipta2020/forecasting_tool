@@ -1,5 +1,6 @@
 # Server
 server <- function(input, output, session) {
+  #### Dashboard user window ####
   output$user <- renderUser({
     myDashboardUser(
       name = "Soumyadipta Das", 
@@ -40,6 +41,7 @@ server <- function(input, output, session) {
     )
   })
   
+  #### File template download ####
   output$file_template_download <- downloadHandler(
     filename = function(){
       paste("Sample data", ".csv", sep = "")
@@ -49,11 +51,12 @@ server <- function(input, output, session) {
       write.csv(temp, file, row.names = FALSE)
     }
   )
-  
+   #### data upload ####
   data_old <- reactive({
     req(input$file)
     df <- read.csv(input$file$datapath)
     
+    ##### column type checking #####
     col_type_check <- ((sum(1*((as.vector(sapply(df, class)))=="numeric")) + 
                           sum(1*((as.vector(sapply(df, class)))=="integer"))) >= ncol(df) - 1)
     if(!col_type_check){
@@ -65,11 +68,12 @@ server <- function(input, output, session) {
       shinyFeedback::feedbackSuccess("file", col_type_check, "Successfully Uploaded.")
       req(col_type_check)
       
+    #### render data table #####
       output$uploaded_data <- renderDT(df, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
       
       df1 <<- df
       
-      # data edit step note
+      #### data edit step note #####
       observeEvent(input$uploaded_data_cell_edit, {
         info = input$uploaded_data_cell_edit
         str(info)
@@ -85,17 +89,18 @@ server <- function(input, output, session) {
       return(df)
     }
   })
-  
+  #### main data ####
   data <- reactive({
     df <- data_old()
     req(input$upload_data != 0)
+    ##### modification of data as per edit #####
     data_edit_1 <- data_edit %>% tidyr::drop_na()
     if(nrow(data_edit_1) != 0){
       for(k in 1:nrow(data_edit_1)){
         df[data_edit_1[k, 1], data_edit_1[k, 2]] <- data_edit_1[k, 3]
       }
     }
-     ##### Outlier treatment #####
+     #### Outlier treatment #####
     for(i in 2:ncol(df)){
       value = df[,i][df[,i] %in% boxplot.stats(df[,i])$out]
       df[,i][df[,i] %in% value] = median(df[,i])
@@ -104,13 +109,50 @@ server <- function(input, output, session) {
     return(df)
   })
   
+  #### graph y variable ####
+  output$response_variable_graph <- renderUI({
+    req(data_old())
+    selectInput("y_variable_graph", "Select Y Variable",
+                choices = colnames(data_old()))
+  })
+  #### graph x variable ####
+  output$x_variable_graph <- renderUI({
+    req(data_old())
+    selectInput("x_variables_graph", "Select X Variables",
+                  choices = setdiff(colnames(data_old()), input$y_variable_graph))
+  })
+  #### graph data ####
+  data_graph <- reactive({
+    temp <- data_old() %>% select(input$x_variables_graph, input$y_variable_graph) %>% 
+      rename(Var1 = input$x_variables_graph, Var2 = input$y_variable_graph)
+    return(temp)
+  })
+  #### graph ####
+  output$vis_data <- renderEcharts4r({
+    req(data_graph(), input$x_variables_graph, input$y_variable_graph)
+    #### time series plot ####
+    data_graph() %>% 
+      e_charts(x = Var1) %>% 
+      e_line(Var2) %>% 
+      e_toolbox() %>%
+      e_toolbox_feature(
+        feature = "magicType",
+        type = list("line", "bar")
+      ) %>% 
+      e_toolbox_feature(feature = "dataView") %>% 
+      e_toolbox_feature(feature = "dataZoom") %>%
+      e_toolbox_feature(feature = "restore") %>%
+      e_toolbox_feature(feature = "saveAsImage")
+    
+  })
   
+  #### model y variable ####
   output$response_variable <- renderUI({
-    req(data())
+    req(data(), input$response_variable_graph, )
     selectInput("response_variable", "Select Response Variable",
                 choices = colnames(data()))
   })
-  
+  #### model x variables ####
   output$x_variables <- renderUI({
     req(data(), input$response_variable, input$data_type, input$upload_data)
     if (input$data_type == "Non-Time Series") {
@@ -121,7 +163,7 @@ server <- function(input, output, session) {
       NULL
     }
   })
-  
+  #### transform to ts ####
   tsData <- reactive({
     req(data(), input$response_variable)
     if (input$data_type == "Time Series") {
@@ -142,12 +184,12 @@ server <- function(input, output, session) {
       NULL
     }
   })
-  
+  #### update y variable choices ####
   observe({
     choices <- colnames(data())
     updateSelectInput(session, "response_variable", choices = choices)
   })
-  
+  #### forecasting function ####
   forecastData <- reactive({
     if (input$data_type == "Time Series") {
       req(tsData(), input$model)
@@ -227,12 +269,12 @@ server <- function(input, output, session) {
     
     return(forecast_values)
   })
-  
+  #### forecast ####
   observeEvent(input$forecast, {
     forecastData()
   })
   
-  
+  #### render forecast graph ####
   output$plot <- renderPlotly({
     req(data(), input$response_variable, input$forecast, forecastData())
     
@@ -306,6 +348,7 @@ server <- function(input, output, session) {
     }
   })
   
+  #### download forecast ####
   output$download <- downloadHandler(
     filename = function(){
       paste0("forecast_", if_else(input$data_type == "Time Series", input$model, input$model1), ".csv")

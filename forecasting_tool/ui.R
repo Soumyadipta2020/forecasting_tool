@@ -208,8 +208,16 @@ ui <- dashboardPage(
                          br(), br(),
                          fluidRow(
                            box(title = "Uploaded Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
-                               width = 12,
+                               width = 12, collapsed = TRUE,
                                dataTableOutput("uploaded_data")
+                           )
+                         ),
+                         fluidRow(
+                           box(title = "Graphical Visualization of Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                               width = 12,
+                               uiOutput("response_variable_graph"),
+                               uiOutput("x_variable_graph"),
+                               echarts4rOutput("vis_data")
                            )
                          )
                        )
