@@ -20,6 +20,19 @@ library(shinydashboardPlus)
 library(DT)
 library(fresh)
 library(echarts4r)
+library(shinymanager)
+
+# define some credentials
+credentials <- data.frame(
+  user = c("admin", "user"), # mandatory
+  password = c("admin$2023", "user"), # mandatory
+  start = c("2019-04-15"), # optinal (all others)
+  expire = c(NA, NA),
+  admin = c(FALSE, FALSE),
+  comment = "Simple and secure authentification mechanism 
+  for single ‘Shiny’ applications.",
+  stringsAsFactors = FALSE
+)
 
 #### data edit ####
 data_edit <<- data.frame(row = NA, col = NA, value = NA)
@@ -47,7 +60,7 @@ dashboard_body_theme <- create_theme(
     default_color = "#FFF",
     default_bg = "#0066cc",
     default_border = "#112446",
-    border_radius_base = "15px"
+    border_radius_base = "10px"
   ),
   bs_vars_tabs(
     border_color = "black",

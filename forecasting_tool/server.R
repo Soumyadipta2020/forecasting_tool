@@ -1,5 +1,20 @@
 # Server
 server <- function(input, output, session) {
+  
+  shinyjs::runjs("$('#myModal').modal('show');")
+  observeEvent(input$reload, {
+    session$reload()
+  })
+  
+  # observeEvent(input$exit, {
+  #   stopApp()
+  # })
+  
+  res_auth <- secure_server(
+    check_credentials = check_credentials(credentials)
+  )
+  
+  
   #### Dashboard user window ####
   output$user <- renderUser({
     myDashboardUser(
@@ -51,7 +66,7 @@ server <- function(input, output, session) {
       write.csv(temp, file, row.names = FALSE)
     }
   )
-   #### data upload ####
+  #### data upload ####
   data_old <- reactive({
     req(input$file)
     df <- read.csv(input$file$datapath)
@@ -68,7 +83,7 @@ server <- function(input, output, session) {
       shinyFeedback::feedbackSuccess("file", col_type_check, "Successfully Uploaded.")
       req(col_type_check)
       
-    #### render data table #####
+      #### render data table #####
       output$uploaded_data <- renderDT(df, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
       
       df1 <<- df
@@ -100,7 +115,7 @@ server <- function(input, output, session) {
         df[data_edit_1[k, 1], data_edit_1[k, 2]] <- data_edit_1[k, 3]
       }
     }
-     #### Outlier treatment #####
+    #### Outlier treatment #####
     for(i in 2:ncol(df)){
       value = df[,i][df[,i] %in% boxplot.stats(df[,i])$out]
       df[,i][df[,i] %in% value] = median(df[,i])
@@ -119,7 +134,7 @@ server <- function(input, output, session) {
   output$x_variable_graph <- renderUI({
     req(data_old())
     selectInput("x_variables_graph", "Select X Variables",
-                  choices = setdiff(colnames(data_old()), input$y_variable_graph))
+                choices = setdiff(colnames(data_old()), input$y_variable_graph))
   })
   #### graph data ####
   data_graph <- reactive({
@@ -148,7 +163,7 @@ server <- function(input, output, session) {
   
   #### model y variable ####
   output$response_variable <- renderUI({
-    req(data(), input$response_variable_graph, )
+    req(data())
     selectInput("response_variable", "Select Response Variable",
                 choices = colnames(data()))
   })

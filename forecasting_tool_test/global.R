@@ -1,3 +1,6 @@
+rm(list=ls())
+
+#### Library ####
 library(shiny)
 library(plotly)
 library(forecast)
@@ -11,19 +14,36 @@ library(dplyr)
 library(randomForest)
 library(rpart)
 library(glmnet)
+library(Matrix)
 library(shinydashboard)
-library(dashboardthemes)
+library(shinydashboardPlus)
+library(DT)
 library(fresh)
+library(echarts4r)
+library(shinymanager)
+
+# define some credentials
+credentials <- data.frame(
+  user = c("admin", "user"), # mandatory
+  password = c("admin$2023", "user"), # mandatory
+  start = c("2019-04-15"), # optinal (all others)
+  expire = c(NA, NA),
+  admin = c(FALSE, FALSE),
+  comment = "Simple and secure authentification mechanism 
+  for single ‘Shiny’ applications.",
+  stringsAsFactors = FALSE
+)
 
 #### data edit ####
 data_edit <<- data.frame(row = NA, col = NA, value = NA)
 
 #### Theme ####
-dashboard_header_theme <- create_theme(
-  adminlte_color(
-    light_blue = "#E7FF6E"
-  )
-)
+# dashboard_header_theme <- create_theme(
+#   theme = "default",
+#   adminlte_color(
+#     light_blue = "#E7FF6E"
+#   )
+# )
 
 #### dashboard sidebar theme ####
 dashboard_sidebar_theme <- create_theme( 
@@ -38,9 +58,9 @@ dashboard_body_theme <- create_theme(
   theme = "cosmo",
   bs_vars_button(
     default_color = "#FFF",
-    default_bg = "#112446",
+    default_bg = "#0066cc",
     default_border = "#112446",
-    border_radius_base = "15px"
+    border_radius_base = "10px"
   ),
   bs_vars_tabs(
     border_color = "black",
@@ -49,40 +69,98 @@ dashboard_body_theme <- create_theme(
   output_file = NULL
 )
 
+#### user panel theme ####
+myDashboardUser <- function (..., name = NULL, image = NULL, title = NULL, subtitle = NULL, 
+                             footer = NULL) 
+{
+  if (!is.null(title)) {
+    line_1 <- paste0(name, " - ", title)
+  }
+  else {
+    line_1 <- name
+  }
+  if (!is.null(subtitle)) {
+    user_text <- shiny::tags$p(line_1, shiny::tags$small(subtitle))
+    user_header_height <- NULL
+  }
+  else {
+    user_text <- shiny::tags$p(line_1)
+    user_header_height <- shiny::tags$script(
+      shiny::HTML("$(\".user-header\").css(\"height\", \"145px\")")
+    )
+  }
+  userTag <- shiny::tagList(
+    shiny::tags$head(
+      shiny::tags$script("$(function() {\n
+                           $('.dashboard-user').on('click', function(e){\n
+                           e.stopPropagation();\n
+                           });\n
+                           });\n
+                           ")),
+    # we need to add an id and the class `action-button` to this link
+    shiny::tags$a(id = "user_dropdown",
+                  href = "#",
+                  class = "dropdown-toggle action-button",
+                  `data-toggle` = "dropdown",
+                  shiny::tags$img(src = image,
+                                  class = "user-image",
+                                  alt = "User Image"),
+                  shiny::tags$span(class = "hidden-xs",
+                                   name)
+    ),
+    shiny::tags$ul(class = "dropdown-menu dashboard-user", 
+                   shiny::tags$li(class = "user-header",
+                                  if (!is.null(user_header_height)) user_header_height,
+                                  shiny::tags$img(src = image, 
+                                                  class = "img-circle",
+                                                  alt = "User Image",
+                                                  style="border:red"),
+                                  user_text,
+                                  style="background:#0066cc"), 
+                   if (length(list(...)) > 0) 
+                     shiny::tags$li(class = "user-body", ...),
+                   if (!is.null(footer)) 
+                     shiny::tags$li(class = "user-footer", footer)
+    )
+  )
+  userTag
+}
+
+
 #### Forecasting functions ####
 #### LSTM ####
 lstm_forecast <- function(ts_data, horizon) {
   library(keras)
-
+  
   # Normalize the data
   normalized_data <- scale(ts_data)
-
+  
   # Split data into train and test sets
   train_data <- normalized_data[1:(length(normalized_data) - horizon)]
   test_data <- normalized_data[(length(normalized_data) - horizon + 1):length(normalized_data)]
-
+  
   # Prepare the training data
   train_x <- train_y <- list()
   for (i in 1:(length(train_data) - horizon)) {
     train_x[[i]] <- matrix(train_data[i:(i + horizon - 1)], nrow = horizon, ncol = 1)
     train_y[[i]] <- train_data[(i + horizon)]
   }
-
+  
   train_x <- array_reshape(train_x, c(length(train_x), horizon, 1))
   train_y <- unlist(train_y)
-
+  
   # Define the LSTM model architecture
   model <- keras_model_sequential()
   model %>%
     layer_lstm(units = 50, input_shape = c(horizon, 1)) %>%
     layer_dense(units = 1)
-
+  
   # Compile the model
   model %>% compile(
     loss = "mean_squared_error",
     optimizer = optimizer_adam()
   )
-
+  
   # Train the model
   model %>% fit(
     train_x, train_y,
@@ -90,17 +168,17 @@ lstm_forecast <- function(ts_data, horizon) {
     batch_size = 32,
     verbose = 0
   )
-
+  
   # Make predictions for the test set
   test_x <- array_reshape(test_data, dim = c(length(test_data) / horizon, horizon, 1))
   predicted_values <- model %>% predict(test_x)
-
+  
   # Denormalize the predicted values
   denormalized_values <- predicted_values * sd(ts_data) + mean(ts_data)
-
+  
   # Create the forecast object
   forecast_values <- ts(denormalized_values, frequency = 12)
-
+  
   return(forecast_values)
 }
 
