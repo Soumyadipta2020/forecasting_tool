@@ -1,5 +1,5 @@
 #### UI ####
-ui <- secure_app(
+ui <- #secure_app(
   dashboardPage(
     title = "Forecasting Tool",
     preloader = list(),
@@ -96,19 +96,19 @@ ui <- secure_app(
       )
     ),
     body = dashboardBody(
-      div(
-        id = "myModal",
-        shiny::modalDialog(
-          title = "Reload RShiny",
-          "Press the reload button if you want to reload RShiny -",
-          fade = TRUE,
-          footer = tagList(
-            modalButton("Cancel", icon = icon("circle-xmark")),
-            actionButton("reload", "Reload", icon = icon("arrows-rotate"))
-          ),
-          easyClose = FALSE
-        )
-      ),
+      # div(
+      #   id = "myModal",
+      #   shiny::modalDialog(
+      #     title = "Reload RShiny",
+      #     "Press the reload button if you want to reload RShiny -",
+      #     fade = TRUE,
+      #     footer = tagList(
+      #       modalButton("Cancel", icon = icon("circle-xmark")),
+      #       actionButton("reload", "Reload", icon = icon("arrows-rotate"))
+      #     ),
+      #     easyClose = FALSE
+      #   )
+      # ),
       use_theme(dashboard_body_theme),
       # tags$head(tags$style(HTML(
       #   '.myClass { 
@@ -256,7 +256,8 @@ ui <- secure_app(
                                         ),
                                         selectInput("model", "Select Time Series Model",
                                                     choices = c("ARIMA", "SARIMA", "ARCH", "GARCH",
-                                                                "LSTM", "AutoML", "ETS"))
+                                                                # "LSTM", 
+                                                                "AutoML", "ETS"))
                                       ),
                                       conditionalPanel(
                                         condition = "input.data_type == 'Non-Time Series'",
@@ -279,5 +280,5 @@ ui <- secure_app(
       )
     ),
     footer = dashboardFooter(right = "2023", left = "By Soumyadipta Das")
-  ), fab_position = "bottom-right"
-)
+  )#, fab_position = "bottom-right"
+# )
