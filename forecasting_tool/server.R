@@ -1,8 +1,22 @@
 # Server
 server <- function(input, output, session) {
   
-  shinyjs::runjs("$('#myModal').modal('show');")
-  observeEvent(input$reload, {
+  if(read.csv("data_reload.csv", header = TRUE)[1,1] == 1){
+    showModal(shiny::modalDialog(
+      title = "Login to RShiny",
+      "Press the login button -",
+      fade = TRUE,
+      footer = tagList(
+        actionButton("login", "LogIn", icon = icon("arrows-rotate"))
+      )
+    ))
+  } else if(read.csv("data_reload.csv", header = TRUE)[1,1] == 0){
+    write.csv(data.frame(a=1), "data_reload.csv", row.names = FALSE)
+  }
+  
+  
+  observeEvent(input$login, {
+    write.csv(data.frame(a=0), "data_reload.csv", row.names = FALSE)
     session$reload()
   })
   
@@ -10,9 +24,9 @@ server <- function(input, output, session) {
   #   stopApp()
   # })
   
-  res_auth <- secure_server(
-    check_credentials = check_credentials(credentials)
-  )
+  # res_auth <- secure_server(
+  #   check_credentials = check_credentials(credentials)
+  # )
   
   
   #### Dashboard user window ####
@@ -221,7 +235,7 @@ server <- function(input, output, session) {
                         fit <- ugarchfit(spec, data = tsData())
                         fitted(fit)
                       },
-                      "LSTM" = lstm_forecast(tsData(), input$horizon),
+                      # "LSTM" = lstm_forecast(tsData(), input$horizon),
                       "AutoML" = automl_forecast(tsData(), input$horizon),
                       "ETS" = forecast::forecast(tsData(), h = input$horizon)
       )
