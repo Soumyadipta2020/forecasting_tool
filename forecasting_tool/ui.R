@@ -231,7 +231,12 @@ ui <- #secure_app(
                                  width = 12,
                                  uiOutput("response_variable_graph"),
                                  uiOutput("x_variable_graph"),
-                                 echarts4rOutput("vis_data")
+                                 fluidRow(
+                                   box(title = "Graph", solidHeader = TRUE, 
+                                     status = "primary", width = 12,
+                                       echarts4rOutput("vis_data")
+                                   )
+                                 )
                              )
                            )
                          )
@@ -279,6 +284,6 @@ ui <- #secure_app(
         )
       )
     ),
-    footer = dashboardFooter(right = "2023", left = "By Soumyadipta Das")
+    footer = dashboardFooter(right = "By Soumyadipta Das", left = "2023")
   )#, fab_position = "bottom-right"
 # )
