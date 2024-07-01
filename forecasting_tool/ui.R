@@ -1,6 +1,5 @@
 #### UI ####
-ui <- #secure_app(
-  dashboardPage(
+ui <- shinydashboardPlus::dashboardPage(
     title = "Forecasting Tool",
     preloader = list(),
     # options = list(sidebarExpandOnHover = TRUE),
@@ -12,6 +11,11 @@ ui <- #secure_app(
       titleWidth = 200, 
       ##### Dropdown menu for messages #####
       dropdownMenu(type = "notifications", badgeStatus = "warning",
+                   messageItem("Feature",
+                               "Multimodal AI Chatbot added",
+                               time = "2024-07-01",
+                               icon = icon("square-check")
+                   ),
                    messageItem("Feature",
                                "Outlier treatment added",
                                time = "2023-09-25",
@@ -26,16 +30,6 @@ ui <- #secure_app(
                                "File template & error handling added",
                                time = "2023-09-07",
                                icon = icon("square-check")
-                   ),
-                   messageItem("Issue",
-                               "LSTM sometimes not working on web",
-                               time = "2023-08-17",
-                               icon = icon("circle-exclamation")
-                   ),
-                   messageItem("Limitations",
-                               "General Models showing predicted values",
-                               time = "2023-08-17",
-                               icon = icon("circle-exclamation")
                    )
       ),
       # tags$li(class = "dropdown", 
@@ -82,7 +76,8 @@ ui <- #secure_app(
       #     )
       #   )
       # ),
-      userOutput("user")
+      userOutput("user"),
+      controlbarIcon = shiny::icon("hire-a-helper")
     ),
     #### Sidebar ####
     sidebar = dashboardSidebar(#minified = TRUE, collapsed = TRUE,
@@ -96,6 +91,9 @@ ui <- #secure_app(
       )
     ),
     body = dashboardBody(
+      useWaiter(),
+      shinyjs::useShinyjs(),
+      use_copy(),
       # div(
       #   id = "myModal",
       #   shiny::modalDialog(
@@ -284,6 +282,87 @@ ui <- #secure_app(
         )
       )
     ),
-    footer = dashboardFooter(right = "By Soumyadipta Das", left = "2023")
-  )#, fab_position = "bottom-right"
-# )
+    # right sidebar ####
+    controlbar = dashboardControlbar(
+      skin = "dark",
+      collapsed = FALSE,
+      overlay = FALSE,
+      width = 350,
+      
+      controlbarMenu(
+        id = "menu",
+        controlbarItem(
+          "Assistant",
+          # LLM Models #####
+          selectInput(
+            "model_gen",
+            "Generative AI Model",
+            choices = c(
+              "Meta-Llama-3",
+              # "gpt-3.5-turbo",
+              "gemini-pro",
+              "microsoft-Phi-3-mini",
+              "claude-2.1",
+              "claude-instant",
+              "google-gemma-7b-it",
+              "Mixtral-v0.1",
+              "Mistral-v0.3",
+              "Yi-1.5"
+            ),
+            selected = "Meta-Llama-3-8B-Instruct"
+          ), 
+          sliderInput(
+            "temperature",
+            "Temperature (gemini & gpt only)",
+            min = 0,
+            max = 1,
+            value = 0.5, 
+            step = 0.1
+          ),
+          # Chat container #####
+          tags$div(
+            id = "chat-container",
+            tags$div(id = "chat-history", 
+                     style = "overflow-y: scroll; height: 200px; display: flex; flex-direction: column;", 
+                     uiOutput("chat_history")),
+            
+            tags$div(id = "chat-input", tags$form(
+              textAreaInput(
+                    inputId = "prompt",
+                    label = "",
+                    placeholder = "Type your message here...",
+                    width = "100%"
+                  ),
+              fileInput("file_chat", "Upload (.docx, .pptx)", accept = c(".docx", ".pptx")),
+              fluidRow(
+                tags$div(
+                  style = "margin-left: 1.5em;",
+                  actionButton(
+                    inputId = "chat",
+                    label = "Send",
+                    icon = icon("paper-plane")
+                  ),
+                  actionButton(
+                    inputId = "remove_chatThread",
+                    label = "Clear History",
+                    icon = icon("trash-can")
+                  ),
+                  CopyButton(
+                    "clipbtn",
+                    label = "Copy",
+                    icon = icon("clipboard"),
+                    text = ""
+                  )
+                  
+                )
+              )
+            ))
+          )
+          # Chat Container end #####
+          
+        )
+      )
+    ),
+    footer = dashboardFooter(right = "By Soumyadipta Das", left = "2023"), 
+    scrollToTop = TRUE
+  )

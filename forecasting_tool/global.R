@@ -2,6 +2,21 @@ rm(list=ls())
 
 #### Library ####
 library(shiny)
+library(httr2)
+library(purrr)
+library(glue)
+library(jsonlite)
+library(httr)
+library(gptstudio)
+library(shinyCopy2clipboard)
+library(sass)
+library(markdown)
+library(waiter)
+library(shinyjs)
+library(dplyr)
+library(officer)
+library(stringr)
+library(openai)
 library(plotly)
 library(forecast)
 library(rugarch)
@@ -10,7 +25,6 @@ library(h2o)
 # library(tensorflow)
 # library(keras)
 library(shinythemes)
-library(dplyr)
 library(randomForest)
 library(rpart)
 library(glmnet)
@@ -22,17 +36,22 @@ library(fresh)
 library(echarts4r)
 library(shinymanager)
 
-# define some credentials
-credentials <- data.frame(
-  user = c("admin", "user"), # mandatory
-  password = c("admin$2023", "user"), # mandatory
-  start = c("2019-04-15"), # optinal (all others)
-  expire = c(NA, NA),
-  admin = c(FALSE, FALSE),
-  comment = "Simple and secure authentification mechanism 
-  for single ‘Shiny’ applications.",
-  stringsAsFactors = FALSE
-)
+source("helper.R")
+
+# js scroll code ####
+jscode_1 <- '
+      var container = document.getElementById("chat-history");
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    '
+
+# API ####
+openai_api_key <<- "sk-proj-3UmC10TAyJ8CULw8hvQDT3BlbkFJKm2pe6yFDBDkNOYPr0Yg"
+gemini_api_key <<- "AIzaSyBc8XOg3B7sY7n5VDsy5SgIT8baqsbFdGc"
+claude_api_key <<-
+  "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"
+hugging_api_key <<- "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"
 
 #### data edit ####
 data_edit <<- data.frame(row = NA, col = NA, value = NA)
