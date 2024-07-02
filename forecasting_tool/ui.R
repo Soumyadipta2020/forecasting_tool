@@ -2,12 +2,15 @@
 ui <- shinydashboardPlus::dashboardPage(
     title = "Forecasting Tool",
     preloader = list(),
+    skin = "blue",
     # options = list(sidebarExpandOnHover = TRUE),
     #### dashboard header ####
     header = dashboardHeader(
-      title = HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
-                         "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
-                         "&nbsp; v.0.02 &nbsp;", "</span>")),
+      leftUi = tagList(),
+      title = uiOutput("header_ui"),
+        # HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
+        #                  "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
+        #                  "&nbsp; v.0.02 &nbsp;", "</span>")),
       titleWidth = 200, 
       ##### Dropdown menu for messages #####
       dropdownMenu(type = "notifications", badgeStatus = "warning",
@@ -80,7 +83,7 @@ ui <- shinydashboardPlus::dashboardPage(
       controlbarIcon = shiny::icon("hire-a-helper")
     ),
     #### Sidebar ####
-    sidebar = dashboardSidebar(#minified = TRUE, collapsed = TRUE,
+    sidebar = dashboardSidebar(minified = TRUE, #collapsed = TRUE,
       use_theme(dashboard_sidebar_theme),
       ##### Sidebar menu #####
       sidebarMenu(
@@ -229,12 +232,12 @@ ui <- shinydashboardPlus::dashboardPage(
                                  width = 12,
                                  uiOutput("response_variable_graph"),
                                  uiOutput("x_variable_graph"),
-                                 fluidRow(
-                                   box(title = "Graph", solidHeader = TRUE, 
-                                     status = "primary", width = 12,
+                                 # fluidRow(
+                                 #   box(title = "Graph", solidHeader = TRUE, 
+                                 #     status = "primary", width = 12,
                                        echarts4rOutput("vis_data")
-                                   )
-                                 )
+                                 #   )
+                                 # )
                              )
                            )
                          )
@@ -323,7 +326,7 @@ ui <- shinydashboardPlus::dashboardPage(
           tags$div(
             id = "chat-container",
             tags$div(id = "chat-history", 
-                     style = "overflow-y: scroll; height: 200px; display: flex; flex-direction: column;", 
+                     style = "overflow-y: scroll; height: 180px; display: flex; flex-direction: column;", 
                      uiOutput("chat_history")),
             
             tags$div(id = "chat-input", tags$form(

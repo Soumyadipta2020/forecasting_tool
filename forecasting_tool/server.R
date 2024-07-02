@@ -1,6 +1,16 @@
 # Server
 server <- function(input, output, session) {
   
+  output$header_ui <- renderUI({
+    if (input$sidebarCollapsed) {
+      "FT"
+    } else {
+      HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
+                       "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
+                       "&nbsp; v.0.02 &nbsp;", "</span>"))
+    }
+  })
+  
   if(read.csv("data_reload.csv", header = TRUE)[1,1] == 1){
     showModal(shiny::modalDialog(
       title = "Login to RShiny",
@@ -161,8 +171,8 @@ server <- function(input, output, session) {
     req(data_graph(), input$x_variables_graph, input$y_variable_graph)
     #### time series plot ####
     data_graph() %>% 
-      e_charts(x = Var1) %>% 
-      e_line(Var2) %>% 
+      e_charts(x = Var1, darkMode = TRUE) %>% 
+      e_line(Var2, color = "#026efa") %>% 
       e_toolbox() %>%
       e_toolbox_feature(
         feature = "magicType",
@@ -171,7 +181,7 @@ server <- function(input, output, session) {
       e_toolbox_feature(feature = "dataView") %>% 
       e_toolbox_feature(feature = "dataZoom") %>%
       e_toolbox_feature(feature = "restore") %>%
-      e_toolbox_feature(feature = "saveAsImage")
+      e_toolbox_feature(feature = "saveAsImage") 
     
   })
   
