@@ -6,79 +6,23 @@ ui <- shinydashboardPlus::dashboardPage(
     # options = list(sidebarExpandOnHover = TRUE),
     #### dashboard header ####
     header = dashboardHeader(
-      leftUi = tagList(),
+      leftUi = tagList(
+        tags$li(class = "dropdown", style = "margin-top:5px;",
+                actionButton("home", "", icon = icon("home"), 
+                                                 no_outline = TRUE, style = "minimal")
+                )
+      ),
       title = uiOutput("header_ui"),
-        # HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
-        #                  "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
-        #                  "&nbsp; v.0.02 &nbsp;", "</span>")),
       titleWidth = 200, 
       ##### Dropdown menu for messages #####
-      dropdownMenu(type = "notifications", badgeStatus = "warning",
-                   messageItem("Feature",
-                               "Multimodal AI Chatbot added",
-                               time = "2024-07-01",
-                               icon = icon("square-check")
-                   ),
-                   messageItem("Feature",
-                               "Outlier treatment added",
-                               time = "2023-09-25",
-                               icon = icon("square-check")
-                   ),
-                   messageItem("Feature",
-                               "Data visualization and editing added",
-                               time = "2023-09-16",
-                               icon = icon("square-check")
-                   ),
-                   messageItem("Feature",
-                               "File template & error handling added",
-                               time = "2023-09-07",
-                               icon = icon("square-check")
+      dropdownMenu(type = "tasks", badgeStatus = "warning",
+                   headerText = "Upcoming Features -",
+                   messageItem("",
+                               "Summary Statistics of uploaded data",
+                               # time = "2024-07-03",
+                               icon = icon("spinner")
                    )
       ),
-      # tags$li(class = "dropdown", 
-      #         tags$a(href = "https://www.linkedin.com/in/soumyadipta-das/",
-      #                "Linked", icon("linkedin"), target = "_blank"
-      #         )), 
-      # tags$li(class = "dropdown", 
-      #         tags$a(href = "https://sites.google.com/view/soumyadipta-das",
-      #                tags$script(src = "https://kit.fontawesome.com/b8fb1ea7bd.js"),
-      #                icon = NULL,
-      #                tags$div(
-      #                  tags$i(class = "fa-regular fa-id-card"),
-      #                  tags$span("  Soumyadipta Das")
-      #                ), target = "_blank"
-      #         )),
-      # dropdownMenu(
-      #   headerText = "",
-      #   icon = icon("user"),
-      # icon = tags$figure(
-      #   img(src="https://lh6.googleusercontent.com/8pvZAi7iQPOc933bIndP-lpbhRH3NAN6K-yS5NYq_WUEgrWafnWTRR67K8TkfdJS7BH-Q4k1r71zsO4iDaAvd_g=w16383",height=30,width=30)
-      # ),
-      #   badgeStatus = NULL,
-      #   tags$li(
-      #     class = "dropdown",
-      #     HTML("<!-- group {'layout':{'type':'constrained'}} -->
-      #           <div class='wp-block-group'><!-- media-text {'mediaId':61,'mediaType':'image'} -->
-      #           <div class='wp-block-media-text is-stacked-on-mobile'><figure style = 'margin-left:15px;' class='wp-block-media-text__media'><img src='self.JPG' alt='' class='wp-image-61 width='75' height='75' '/></figure><div class='wp-block-media-text__content'><!-- paragraph {'placeholder':'Content…'} -->
-      #           <p style = 'margin-left:15px;'><strong>Soumyadipta Das</strong></p>
-      #           <!-- /paragraph -->
-      #           
-      #           <!-- paragraph -->
-      #           <p style = 'margin-left:15px;'>Lead Assistant Manager, EXL</p>
-      #           <!-- /paragraph -->
-      #           
-      #           <!-- paragraph {'fontSize':'small'} -->
-      #           <p style = 'margin-left:15px;' class='has-small-font-size'>Website - <a href='https://sites.google.com/view/soumyadipta-das'>Soumyadipta Das</a></p>
-      #           <!-- /paragraph -->
-      #           
-      #           <!-- paragraph {'fontSize':'small'} -->
-      #           <p style = 'margin-left:15px;' class='has-small-font-size'>Email - <a href='mailto:soumyadipta_das@consultant.com'>soumyadipta_das@consultant.com</a></p>
-      #           <!-- /paragraph --></div></div>
-      #           <!-- /media-text --></div>
-      #           <!-- /group -->"
-      #     )
-      #   )
-      # ),
       userOutput("user"),
       controlbarIcon = shiny::icon("hire-a-helper")
     ),
@@ -90,7 +34,9 @@ ui <- shinydashboardPlus::dashboardPage(
         id = "sidebar",
         
         ###### menuitem ######
-        menuItem("Forecasting", tabName = "Forecasting", icon = icon("chart-line"))
+        menuItem("Home", tabName = "Home", icon = icon("home")),
+        menuItem("Forecasting", tabName = "Forecasting", icon = icon("chart-line")),
+        menuItem("About", tabName = "About", icon = icon("circle-info"))
       )
     ),
     body = dashboardBody(
@@ -127,6 +73,7 @@ ui <- shinydashboardPlus::dashboardPage(
       #     $("header").find("nav").append(\'<span class="myClass" style="font-size: 16px;"> Forecasting Tool </span> <span class="version-badge" style="border-radius: 10px; font-size: small; background-color: #545454; color: white;"> &nbsp; v.0.02 &nbsp;  </span> \');
       #   })
       #  ')),
+      tags$script(HTML("$('body').addClass('fixed');")),
       tags$head(tags$style(HTML('
     
         /* logo */
@@ -206,14 +153,31 @@ ui <- shinydashboardPlus::dashboardPage(
             border-top-color: black;
         }
         
+        /* pointer icons */
+        .tick-list {
+        list-style-type: none; /* Remove default bullets */
+        padding: 0;
+        }
+        .tick-list li {
+          position: relative;
+          padding-left: 25px; /* Space for the tick mark */
+          /*margin-bottom: 10px;*/
+        }
+        .tick-list li:before {
+          content: "\\2713"; /* Unicode for tick mark */
+          position: absolute;
+          left: 0;
+          color: green; /* Tick mark color */
+        }
+        
          '))),
       tabItems(
-        #### Forecasting tab ####
-        tabItem(tabName = "Forecasting",
+        #### Home tab ####
+        tabItem(tabName = "Home",
                 tabBox(id = "tabbox_1", width = 12,
                        #### Data Upload and visualization Tabpanel ####
                        tabPanel(
-                         "Data Visualization", icon = icon("table"),
+                         "Data", icon = icon("database"),
                          fluidPage(
                            fileInput("file", "Upload Your File (.csv supported)"),
                            shinyFeedback::useShinyFeedback(),
@@ -229,7 +193,7 @@ ui <- shinydashboardPlus::dashboardPage(
                            ),
                            fluidRow(
                              box(title = "Graphical Visualization of Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
-                                 width = 12,
+                                 width = 12, collapsed = TRUE,
                                  uiOutput("response_variable_graph"),
                                  uiOutput("x_variable_graph"),
                                  # fluidRow(
@@ -241,8 +205,12 @@ ui <- shinydashboardPlus::dashboardPage(
                              )
                            )
                          )
-                       ),
-                       
+                       )
+                )
+        ),
+        
+        tabItem(tabName = "Forecasting",
+                tabBox(id = "tabbox_2", width = 12,
                        #### Forecasting tabpanel ####
                        tabPanel("Forecasting", icon = icon("chart-line"), 
                                 fluidPage(
@@ -282,6 +250,36 @@ ui <- shinydashboardPlus::dashboardPage(
                                 )
                        )
                 )
+        ),
+        
+        # About Section ####
+        tabItem(tabName = "About",
+                fluidPage(
+                  h1("About the App"),
+                  "The AI Forecasting Tool, based on the R Shiny architecture, provides a comprehensive and user-friendly platform for all your data analysis needs. R Shiny, a web application framework for R, allows for the creation of interactive and visually appealing applications without requiring extensive web development skills. Leveraging this powerful framework, users can seamlessly upload their data, make necessary edits, and visualize the information in an intuitive manner. The tool offers a variety of models to choose from, allowing for tailored predictions and forecasts to suit specific requirements. Once the forecasting process is complete, users can easily extract the results for further use. Moreover, the tool includes an interactive AI component that enables discussions on multiple topics, providing valuable insights and guidance throughout the analysis process. This combination of advanced functionality, ease of use, and interactive features makes the AI Forecasting Tool an essential asset for data-driven decision-making.", 
+                  h4("The top features are as follows -"),
+                  tags$ul(
+                    tags$li("Upload your data"),
+                    tags$li("Edit and visualize your data"),
+                    tags$li("Select desired model"),
+                    tags$li("Predict and forecast"),
+                    tags$li("Extract the results"),
+                    tags$li("Discuss multiple topics with AI")
+                  ),
+                  h1("Changelog"),
+                  fluidRow(
+                    box(title = "2024-07-03", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                        width = 12, collapsed = TRUE,
+                        tags$ul(class = "tick-list",
+                          tags$li("Multimodal AI Chatbot added"),
+                          tags$li("Outlier treatment added"),
+                          tags$li("Data visualization and editing added"),
+                          tags$li("File template & error handling added")
+                        )
+                    )
+                  )
+                  
+                )
         )
       )
     ),
@@ -290,16 +288,17 @@ ui <- shinydashboardPlus::dashboardPage(
       skin = "dark",
       collapsed = FALSE,
       overlay = FALSE,
-      width = 350,
+      width = 370,
       
       controlbarMenu(
         id = "menu",
         controlbarItem(
-          "Assistant",
+          fluidPage(
+          # "Assistant",
           # LLM Models #####
           selectInput(
             "model_gen",
-            "Generative AI Model",
+            "AI Model",
             choices = c(
               "Meta-Llama-3",
               # "gpt-3.5-turbo",
@@ -326,7 +325,8 @@ ui <- shinydashboardPlus::dashboardPage(
           tags$div(
             id = "chat-container",
             tags$div(id = "chat-history", 
-                     style = "overflow-y: scroll; height: 180px; display: flex; flex-direction: column;", 
+                     style = "overflow-y: scroll; height: 210px; display: flex; flex-direction: column; 
+                     text-align:left;", 
                      uiOutput("chat_history")),
             
             tags$div(id = "chat-input", tags$form(
@@ -339,7 +339,7 @@ ui <- shinydashboardPlus::dashboardPage(
               fileInput("file_chat", "Upload (.docx, .pptx)", accept = c(".docx", ".pptx")),
               fluidRow(
                 tags$div(
-                  style = "margin-left: 1.5em;",
+                  style = "margin-left: 0em;",
                   actionButton(
                     inputId = "chat",
                     label = "Send",
@@ -364,6 +364,7 @@ ui <- shinydashboardPlus::dashboardPage(
           # Chat Container end #####
           
         )
+      )
       )
     ),
     footer = dashboardFooter(right = "By Soumyadipta Das", left = "2023"), 

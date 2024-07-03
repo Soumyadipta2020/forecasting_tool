@@ -78,7 +78,7 @@ dashboard_body_theme <- create_theme(
   bs_vars_button(
     default_color = "#FFF",
     default_bg = "#0066cc",
-    default_border = "#112446",
+    # default_border = "#112446",
     border_radius_base = "10px"
   ),
   bs_vars_tabs(

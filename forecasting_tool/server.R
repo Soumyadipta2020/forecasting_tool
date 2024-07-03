@@ -1,6 +1,7 @@
 # Server
 server <- function(input, output, session) {
   
+  # dashboard header title ####
   output$header_ui <- renderUI({
     if (input$sidebarCollapsed) {
       "FT"
@@ -11,6 +12,13 @@ server <- function(input, output, session) {
     }
   })
   
+  # home button ####
+  observeEvent(input$home, {
+    updateTabItems(session, "sidebar", selected = "Home")
+    updateTabsetPanel(session, "tabbox_1", selected = "Data")
+  })
+  
+  # login ####
   if(read.csv("data_reload.csv", header = TRUE)[1,1] == 1){
     showModal(shiny::modalDialog(
       title = "Login to RShiny",
@@ -30,14 +38,6 @@ server <- function(input, output, session) {
     session$reload()
   })
   
-  # observeEvent(input$exit, {
-  #   stopApp()
-  # })
-  
-  # res_auth <- secure_server(
-  #   check_credentials = check_credentials(credentials)
-  # )
-  
   
   #### Dashboard user window ####
   output$user <- renderUser({
@@ -52,7 +52,7 @@ server <- function(input, output, session) {
           width = 6,
           socialButton(
             href = "https://sites.google.com/view/soumyadipta-das",
-            icon = icon("user")
+            icon = icon("id-card")
           )
         ),
         dashboardUserItem(
