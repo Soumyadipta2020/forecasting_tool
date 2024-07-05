@@ -18,25 +18,25 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "tabbox_1", selected = "Data")
   })
   
-  # login ####
-  if(read.csv("data_reload.csv", header = TRUE)[1,1] == 1){
-    showModal(shiny::modalDialog(
-      title = "Login to RShiny",
-      "Press the login button -",
-      fade = TRUE,
-      footer = tagList(
-        actionButton("login", "LogIn", icon = icon("arrows-rotate"))
-      )
-    ))
-  } else if(read.csv("data_reload.csv", header = TRUE)[1,1] == 0){
-    write.csv(data.frame(a=1), "data_reload.csv", row.names = FALSE)
-  }
-  
-  
-  observeEvent(input$login, {
-    write.csv(data.frame(a=0), "data_reload.csv", row.names = FALSE)
-    session$reload()
-  })
+  # # login ####
+  # if(read.csv("data_reload.csv", header = TRUE)[1,1] == 1){
+  #   showModal(shiny::modalDialog(
+  #     title = "Login to RShiny",
+  #     "Press the login button -",
+  #     fade = TRUE,
+  #     footer = tagList(
+  #       actionButton("login", "LogIn", icon = icon("arrows-rotate"))
+  #     )
+  #   ))
+  # } else if(read.csv("data_reload.csv", header = TRUE)[1,1] == 0){
+  #   write.csv(data.frame(a=1), "data_reload.csv", row.names = FALSE)
+  # }
+  # 
+  # 
+  # observeEvent(input$login, {
+  #   write.csv(data.frame(a=0), "data_reload.csv", row.names = FALSE)
+  #   session$reload()
+  # })
   
   
   #### Dashboard user window ####
@@ -128,6 +128,39 @@ server <- function(input, output, session) {
       return(df)
     }
   })
+  
+  #### Data info ####
+  output$info_data <- renderUI({
+    req(data_old())
+    list(
+      valueBox(
+        value = nrow(data_old()),
+        subtitle = "Observations",
+        icon = shiny::icon("tower-observation"),
+        color = "yellow",
+        width = 3),
+      valueBox(
+        value = ncol(data_old()),
+        subtitle = "Variables",
+        icon = shiny::icon("square-root-variable"),
+        color = "green",
+        width = 3),
+      valueBox(
+        value = paste(sum(is.na(data_old()))/(nrow(data_old()) * ncol(data_old())) * 100, "%"),
+        subtitle = "Missing %",
+        icon = shiny::icon("percentage"),
+        color = "red",
+        width = 3),
+      valueBox(
+        value = length(select_if(data_old(),is.numeric)),
+        subtitle = "Numeric Columns",
+        icon = shiny::icon("list-ol"),
+        color = "orange",
+        width = 3)
+      
+    )
+  })
+  
   #### main data ####
   data <- reactive({
     df <- data_old()
@@ -169,7 +202,7 @@ server <- function(input, output, session) {
   #### graph ####
   output$vis_data <- renderEcharts4r({
     req(data_graph(), input$x_variables_graph, input$y_variable_graph)
-    #### time series plot ####
+    ##### time series plot #####
     data_graph() %>% 
       e_charts(x = Var1, darkMode = TRUE) %>% 
       e_line(Var2, color = "#026efa") %>% 
@@ -184,6 +217,99 @@ server <- function(input, output, session) {
       e_toolbox_feature(feature = "saveAsImage") 
     
   })
+  
+  #### summary stat vars ####
+  output$vars_stat <- renderUI({
+    req(data())
+    selectInput("vars_stat_selected", "Select Variables",
+                choices = colnames(data()), multiple = TRUE, selected = NULL)
+  })
+  
+  #### Summary stat ####
+  data_prep_stat <- reactive({
+    req(!is.null(data()))
+    if(is.null(input$vars_stat_selected)){
+      temp <- select_if(data(),is.numeric)
+      temp_cols <- colnames(temp)
+      temp_sum <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)) %>% mutate(type = "Sum")
+      temp_mean <- temp %>% summarise_all(~ mean(.x, na.rm = TRUE)) %>% mutate(type = "Mean")
+      temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
+      temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
+      temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
+      temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
+      temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
+      temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
+      temp <- temp_sum %>% bind_rows(temp_mean, temp_median, temp_mode, temp_max, 
+                                     temp_min, temp_skew, temp_kurt) %>% 
+        select(type, all_of(temp_cols))
+    } else {
+      temp <- data() %>% select(input$vars_stat_selected)
+      temp_sum <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)) %>% mutate(type = "Sum")
+      temp_mean <- temp %>% summarise_all(~ mean(.x, na.rm = TRUE)) %>% mutate(type = "Mean")
+      temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
+      temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
+      temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
+      temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
+      temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
+      temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
+      temp <- temp_sum %>% bind_rows(temp_mean, temp_median, temp_mode, temp_max, 
+                                     temp_min, temp_skew, temp_kurt) %>% 
+        select(type, input$vars_stat_selected)
+      
+    }
+    return(temp)
+  })
+  
+  output$summary_stat_table <- renderDT(
+    data_prep_stat(), filter = "top", selection = 'none', rownames = FALSE
+  )
+  
+  #### sumarry stat visualization ####
+  summary_stat_fig <- reactive({
+    withProgress(message = "Loading....",{
+      req(!is.null(data()))
+      
+      if(is.null(input$vars_stat_selected)){
+        temp <- select_if(data(),is.numeric)
+        temp_cols <- colnames(temp)
+      } else {
+        temp <- data() %>% select(input$vars_stat_selected)
+        temp_cols <- colnames(temp)
+      }
+      
+      nvar <- ncol(temp)
+      
+      if(input$summary_stat_plot_type == "Boxplot"){
+        fig <- plot_ly(y = temp[,1], type = "box", quartilemethod="linear", name=temp_cols[1])
+        if(nvar > 1){
+          for(i in 2:nvar){
+            fig <- fig %>% add_trace(y = temp[,i], quartilemethod="inclusive", name=temp_cols[i])
+          }
+        }
+        fig <- fig %>% layout(title = "Boxplot")
+      } else if(input$summary_stat_plot_type == "Violin Plot") {
+        temp <- temp %>% pivot_longer(cols = temp_cols, names_to = "Vars", values_to = "values")
+        fig <- temp %>%
+          plot_ly(
+            x = ~Vars,
+            y = ~values,
+            split = ~Vars,
+            type = 'violin',
+            box = list(
+              visible = T
+            ),
+            meanline = list(
+              visible = T
+            )
+          ) %>% layout(title = "Violin Plot")
+      }
+    })
+    
+    
+    return(fig)
+  })
+  output$summary_stat_vis <- renderPlotly(summary_stat_fig())
+  
   
   #### model y variable ####
   output$response_variable <- renderUI({
@@ -488,23 +614,25 @@ server <- function(input, output, session) {
             api_key = gemini_api_key,
             max_retries = 10
           )
-      } else if (input$model_gen == "claude-2.1") {
-        response <-
-          create_completion_anthropic(
-            prompt,
-            key = claude_api_key,
-            model = "claude-2.1",
-            history = rv$chat_history,
-          )
-      } else if (input$model_gen == "claude-instant") {
-        response <-
-          create_completion_anthropic(
-            prompt,
-            key = claude_api_key,
-            model = "claude-instant-1.2",
-            history = rv$chat_history,
-          )
-      } else if (input$model_gen == "google-gemma-7b-it") {
+      } 
+    # else if (input$model_gen == "claude-2.1") {
+    #     response <-
+    #       create_completion_anthropic(
+    #         prompt,
+    #         key = claude_api_key,
+    #         model = "claude-2.1",
+    #         # history = rv$chat_history,
+    #       )
+    #   } else if (input$model_gen == "claude-instant") {
+    #     response <-
+    #       create_completion_anthropic(
+    #         prompt,
+    #         key = claude_api_key,
+    #         model = "claude-instant-1.2",
+    #         # history = rv$chat_history,
+    #       )
+    #   } 
+    else if (input$model_gen == "google-gemma-7b-it") {
         response <-
           create_completion_huggingface(
             model = "google/gemma-1.1-7b-it",

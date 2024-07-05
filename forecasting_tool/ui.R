@@ -16,10 +16,9 @@ ui <- shinydashboardPlus::dashboardPage(
       titleWidth = 200, 
       ##### Dropdown menu for messages #####
       dropdownMenu(type = "tasks", badgeStatus = "warning",
-                   headerText = "Upcoming Features -",
-                   messageItem("",
-                               "Summary Statistics of uploaded data",
-                               # time = "2024-07-03",
+                   headerText = "Upcoming/Ongoing Features -",
+                   messageItem(from = NULL,
+                               message = "Summary Statistics of uploaded data",
                                icon = icon("spinner")
                    )
       ),
@@ -75,6 +74,11 @@ ui <- shinydashboardPlus::dashboardPage(
       #  ')),
       tags$script(HTML("$('body').addClass('fixed');")),
       tags$head(tags$style(HTML('
+      
+        .dropdown-menu {
+          width: 300px !important;
+        }
+       
     
         /* logo */
         .skin-blue .main-header .logo {
@@ -179,12 +183,13 @@ ui <- shinydashboardPlus::dashboardPage(
                        tabPanel(
                          "Data", icon = icon("database"),
                          fluidPage(
-                           fileInput("file", "Upload Your File (.csv supported)"),
+                           fileInput("file", list(icon("file-csv"),"Upload Your File (.csv supported)")),
                            shinyFeedback::useShinyFeedback(),
                            splitLayout(downloadButton("file_template_download", "Download template file"),
                                        actionButton("upload_data", "Upload data")
                            ),
                            br(), br(),
+                           uiOutput("info_data"),
                            fluidRow(
                              box(title = "Uploaded Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
                                  width = 12, collapsed = TRUE,
@@ -192,7 +197,7 @@ ui <- shinydashboardPlus::dashboardPage(
                              )
                            ),
                            fluidRow(
-                             box(title = "Graphical Visualization of Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                             box(title = "Quick Visualization of Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
                                  width = 12, collapsed = TRUE,
                                  uiOutput("response_variable_graph"),
                                  uiOutput("x_variable_graph"),
@@ -202,6 +207,26 @@ ui <- shinydashboardPlus::dashboardPage(
                                        echarts4rOutput("vis_data")
                                  #   )
                                  # )
+                             )
+                           )
+                         )
+                       ),
+                       #### Summary stat ####
+                       tabPanel(
+                         "Summary Statistics", icon = icon("chart-pie"),
+                         fluidPage(
+                           uiOutput("vars_stat"),
+                           fluidRow(
+                             box(title = "Summary Statistics", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                                 width = 12, collapsed = TRUE,
+                                 dataTableOutput("summary_stat_table")
+                             ),
+                             box(title = "Visualization", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                                 width = 12, collapsed = FALSE,
+                                 selectInput("summary_stat_plot_type", "Plot Type",
+                                             choices = c("Boxplot", "Violin Plot"), 
+                                             selected = "Violin Plot"),
+                                 plotlyOutput("summary_stat_vis")
                              )
                            )
                          )
@@ -268,13 +293,21 @@ ui <- shinydashboardPlus::dashboardPage(
                   ),
                   h1("Changelog"),
                   fluidRow(
+                    box(title = "2024-07-05", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                        width = 12, collapsed = TRUE,
+                        tags$ul(class = "tick-list",
+                          tags$li("Data info added at homepage"),
+                          tags$li("New tab created - Summary Statistics"),
+                          tags$li("Boxplot, Violin Plot added")
+                        )
+                    ),
                     box(title = "2024-07-03", collapsible = TRUE, status = "success", solidHeader = TRUE, 
                         width = 12, collapsed = TRUE,
                         tags$ul(class = "tick-list",
-                          tags$li("Multimodal AI Chatbot added"),
-                          tags$li("Outlier treatment added"),
-                          tags$li("Data visualization and editing added"),
-                          tags$li("File template & error handling added")
+                                tags$li("Multimodal AI Chatbot added"),
+                                tags$li("Outlier treatment added"),
+                                tags$li("Data visualization and editing added"),
+                                tags$li("File template & error handling added")
                         )
                     )
                   )
@@ -288,7 +321,7 @@ ui <- shinydashboardPlus::dashboardPage(
       skin = "dark",
       collapsed = FALSE,
       overlay = FALSE,
-      width = 370,
+      width = 400,
       
       controlbarMenu(
         id = "menu",
@@ -304,8 +337,8 @@ ui <- shinydashboardPlus::dashboardPage(
               # "gpt-3.5-turbo",
               "gemini-pro",
               "microsoft-Phi-3-mini",
-              "claude-2.1",
-              "claude-instant",
+              # "claude-2.1",
+              # "claude-instant",
               "google-gemma-7b-it",
               "Mixtral-v0.1",
               "Mistral-v0.3",
