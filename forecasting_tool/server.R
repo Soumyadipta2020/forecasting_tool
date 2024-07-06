@@ -4,7 +4,8 @@ server <- function(input, output, session) {
   # dashboard header title ####
   output$header_ui <- renderUI({
     if (input$sidebarCollapsed) {
-      "FT"
+      # "FT"
+      tags$img(src='brand logo.png', height = '35', width ='35')
     } else {
       HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
                        "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
@@ -146,7 +147,7 @@ server <- function(input, output, session) {
         color = "green",
         width = 3),
       valueBox(
-        value = paste(sum(is.na(data_old()))/(nrow(data_old()) * ncol(data_old())) * 100, "%"),
+        value = paste(round(sum(is.na(data_old()))/(nrow(data_old()) * ncol(data_old())) * 100,1), "%"),
         subtitle = "Missing %",
         icon = shiny::icon("percentage"),
         color = "red",
@@ -595,6 +596,25 @@ server <- function(input, output, session) {
         temp_text <- paste(content$text, collapse = " ")
         prompt <- paste(prompt, temp_text, sep = "  -  ")
       }
+    } else if(!is.null(input$file$datapath)) {
+      # a <- data_old()
+      # col_len <- length(colnames(a))
+      # temp <- colnames(a)[1]
+      # if(col_len > 1){
+      #   for(i in 2:col_len){
+      #     temp <- paste(temp, colnames(a)[i], sep = ",")
+      #   }
+      # }
+      # temp <- paste0(temp,"\n")
+      # for(i in 1:nrow(a)){
+      #   for(j in 1:col_len){
+      #     temp <- paste0(temp, a[i,j], sep = ",")
+      #   }
+      #   temp <- paste0(temp,"\n")
+      # }
+      # 
+      # prompt <- paste(prompt, temp, sep = "  -  ")
+      
     }
     
     ##### connecting with LLM's #####
@@ -614,25 +634,23 @@ server <- function(input, output, session) {
             api_key = gemini_api_key,
             max_retries = 10
           )
-      } 
-    # else if (input$model_gen == "claude-2.1") {
-    #     response <-
-    #       create_completion_anthropic(
-    #         prompt,
-    #         key = claude_api_key,
-    #         model = "claude-2.1",
-    #         # history = rv$chat_history,
-    #       )
-    #   } else if (input$model_gen == "claude-instant") {
-    #     response <-
-    #       create_completion_anthropic(
-    #         prompt,
-    #         key = claude_api_key,
-    #         model = "claude-instant-1.2",
-    #         # history = rv$chat_history,
-    #       )
-    #   } 
-    else if (input$model_gen == "google-gemma-7b-it") {
+      } else if (input$model_gen == "claude-2.1") {
+        response <-
+          create_completion_anthropic(
+            prompt,
+            key = claude_api_key,
+            model = "claude-2.1",
+            # history = rv$chat_history,
+          )
+      } else if (input$model_gen == "claude-instant") {
+        response <-
+          create_completion_anthropic(
+            prompt,
+            key = claude_api_key,
+            model = "claude-instant-1.2",
+            # history = rv$chat_history,
+          )
+      } else if (input$model_gen == "google-gemma-7b-it") {
         response <-
           create_completion_huggingface(
             model = "google/gemma-1.1-7b-it",
@@ -687,8 +705,7 @@ server <- function(input, output, session) {
       }
     
     
-    ##### reset uploaded file #####
-    reset("file_chat")
+    
     
     response <- gsub(" \nAssistant:\n", "", response)
     
@@ -718,6 +735,9 @@ server <- function(input, output, session) {
     removeModal()
     shinyjs::runjs(jscode_1)
     reset("prompt")
+    
+    ##### reset uploaded file #####
+    reset("file_chat")
   })
   #### chat history ####
   observe({

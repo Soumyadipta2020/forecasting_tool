@@ -1,79 +1,79 @@
 #### UI ####
 ui <- shinydashboardPlus::dashboardPage(
-    title = "Forecasting Tool",
-    preloader = list(),
-    skin = "blue",
-    # options = list(sidebarExpandOnHover = TRUE),
-    #### dashboard header ####
-    header = dashboardHeader(
-      leftUi = tagList(
-        tags$li(class = "dropdown", style = "margin-top:5px;",
-                actionButton("home", "", icon = icon("home"), 
-                                                 no_outline = TRUE, style = "minimal")
-                )
-      ),
-      title = uiOutput("header_ui"),
-      titleWidth = 200, 
-      ##### Dropdown menu for messages #####
-      dropdownMenu(type = "tasks", badgeStatus = "warning",
-                   headerText = "Upcoming/Ongoing Features -",
-                   messageItem(from = NULL,
-                               message = "Summary Statistics of uploaded data",
-                               icon = icon("spinner")
-                   )
-      ),
-      userOutput("user"),
-      controlbarIcon = shiny::icon("hire-a-helper")
-    ),
-    #### Sidebar ####
-    sidebar = dashboardSidebar(minified = TRUE, #collapsed = TRUE,
-      use_theme(dashboard_sidebar_theme),
-      ##### Sidebar menu #####
-      sidebarMenu(
-        id = "sidebar",
-        
-        ###### menuitem ######
-        menuItem("Home", tabName = "Home", icon = icon("home")),
-        menuItem("Forecasting", tabName = "Forecasting", icon = icon("chart-line")),
-        menuItem("About", tabName = "About", icon = icon("circle-info"))
+  title = "Forecasting Tool",
+  preloader = list(),
+  skin = "blue",
+  # options = list(sidebarExpandOnHover = TRUE),
+  #### dashboard header ####
+  header = dashboardHeader(
+    leftUi = tagList(
+      tags$li(class = "dropdown", style = "margin-top:5px;",
+              actionButton("home", "", icon = icon("home"), 
+                           no_outline = TRUE, style = "minimal")
       )
     ),
-    body = dashboardBody(
-      useWaiter(),
-      shinyjs::useShinyjs(),
-      use_copy(),
-      # div(
-      #   id = "myModal",
-      #   shiny::modalDialog(
-      #     title = "Reload RShiny",
-      #     "Press the reload button if you want to reload RShiny -",
-      #     fade = TRUE,
-      #     footer = tagList(
-      #       modalButton("Cancel", icon = icon("circle-xmark")),
-      #       actionButton("reload", "Reload", icon = icon("arrows-rotate"))
-      #     ),
-      #     easyClose = FALSE
-      #   )
-      # ),
-      use_theme(dashboard_body_theme),
-      # tags$head(tags$style(HTML(
-      #   '.myClass { 
-      #     font-size: 16px;
-      #     line-height: 50px;
-      #     text-align: centre;
-      #     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-      #     padding: 0 15px;
-      #     overflow: hidden;
-      #     color: white;
-      #   }
-      # '))),
-      # tags$script(HTML('
-      #   $(document).ready(function() {
-      #     $("header").find("nav").append(\'<span class="myClass" style="font-size: 16px;"> Forecasting Tool </span> <span class="version-badge" style="border-radius: 10px; font-size: small; background-color: #545454; color: white;"> &nbsp; v.0.02 &nbsp;  </span> \');
-      #   })
-      #  ')),
-      tags$script(HTML("$('body').addClass('fixed');")),
-      tags$head(tags$style(HTML('
+    title = uiOutput("header_ui"),
+    titleWidth = 200, 
+    ##### Dropdown menu for messages #####
+    dropdownMenu(type = "tasks", badgeStatus = "warning",
+                 headerText = "Upcoming/Ongoing Features -",
+                 messageItem(from = NULL,
+                             message = "Summary Statistics of uploaded data",
+                             icon = icon("spinner")
+                 )
+    ),
+    userOutput("user"),
+    controlbarIcon = shiny::icon("hire-a-helper")
+  ),
+  #### Sidebar ####
+  sidebar = dashboardSidebar(minified = TRUE, #collapsed = TRUE,
+                             use_theme(dashboard_sidebar_theme),
+                             ##### Sidebar menu #####
+                             sidebarMenu(
+                               id = "sidebar",
+                               
+                               ###### menuitem ######
+                               menuItem("Home", tabName = "Home", icon = icon("home")),
+                               menuItem("Forecasting", tabName = "Forecasting", icon = icon("chart-line")),
+                               menuItem("About", tabName = "About", icon = icon("circle-info"))
+                             )
+  ),
+  body = dashboardBody(
+    useWaiter(),
+    shinyjs::useShinyjs(),
+    use_copy(),
+    # div(
+    #   id = "myModal",
+    #   shiny::modalDialog(
+    #     title = "Reload RShiny",
+    #     "Press the reload button if you want to reload RShiny -",
+    #     fade = TRUE,
+    #     footer = tagList(
+    #       modalButton("Cancel", icon = icon("circle-xmark")),
+    #       actionButton("reload", "Reload", icon = icon("arrows-rotate"))
+    #     ),
+    #     easyClose = FALSE
+    #   )
+    # ),
+    use_theme(dashboard_body_theme),
+    # tags$head(tags$style(HTML(
+    #   '.myClass { 
+    #     font-size: 16px;
+    #     line-height: 50px;
+    #     text-align: centre;
+    #     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    #     padding: 0 15px;
+    #     overflow: hidden;
+    #     color: white;
+    #   }
+    # '))),
+    # tags$script(HTML('
+    #   $(document).ready(function() {
+    #     $("header").find("nav").append(\'<span class="myClass" style="font-size: 16px;"> Forecasting Tool </span> <span class="version-badge" style="border-radius: 10px; font-size: small; background-color: #545454; color: white;"> &nbsp; v.0.02 &nbsp;  </span> \');
+    #   })
+    #  ')),
+    tags$script(HTML("$('body').addClass('fixed');")),
+    tags$head(tags$style(HTML('
       
         .dropdown-menu {
           width: 300px !important;
@@ -175,158 +175,163 @@ ui <- shinydashboardPlus::dashboardPage(
         }
         
          '))),
-      tabItems(
-        #### Home tab ####
-        tabItem(tabName = "Home",
-                tabBox(id = "tabbox_1", width = 12,
-                       #### Data Upload and visualization Tabpanel ####
-                       tabPanel(
-                         "Data", icon = icon("database"),
-                         fluidPage(
-                           fileInput("file", list(icon("file-csv"),"Upload Your File (.csv supported)")),
-                           shinyFeedback::useShinyFeedback(),
-                           splitLayout(downloadButton("file_template_download", "Download template file"),
-                                       actionButton("upload_data", "Upload data")
-                           ),
-                           br(), br(),
-                           uiOutput("info_data"),
-                           fluidRow(
-                             box(title = "Uploaded Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
-                                 width = 12, collapsed = TRUE,
-                                 dataTableOutput("uploaded_data")
-                             )
-                           ),
-                           fluidRow(
-                             box(title = "Quick Visualization of Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
-                                 width = 12, collapsed = TRUE,
-                                 uiOutput("response_variable_graph"),
-                                 uiOutput("x_variable_graph"),
-                                 # fluidRow(
-                                 #   box(title = "Graph", solidHeader = TRUE, 
-                                 #     status = "primary", width = 12,
-                                       echarts4rOutput("vis_data")
-                                 #   )
-                                 # )
-                             )
+    tabItems(
+      #### Home tab ####
+      tabItem(tabName = "Home",
+              tabBox(id = "tabbox_1", width = 12,
+                     #### Data Upload and visualization Tabpanel ####
+                     tabPanel(
+                       "Data", icon = icon("database"),
+                       fluidPage(
+                         fileInput("file", list(icon("file-csv"),"Upload Your File (.csv supported)"), accept = ".csv"),
+                         shinyFeedback::useShinyFeedback(),
+                         splitLayout(downloadButton("file_template_download", "Download template file"),
+                                     actionButton("upload_data", "Upload data")
+                         ),
+                         br(), br(),
+                         uiOutput("info_data"),
+                         fluidRow(
+                           box(title = "Uploaded Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                               width = 12, collapsed = TRUE,
+                               dataTableOutput("uploaded_data")
                            )
-                         )
-                       ),
-                       #### Summary stat ####
-                       tabPanel(
-                         "Summary Statistics", icon = icon("chart-pie"),
-                         fluidPage(
-                           uiOutput("vars_stat"),
-                           fluidRow(
-                             box(title = "Summary Statistics", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
-                                 width = 12, collapsed = TRUE,
-                                 dataTableOutput("summary_stat_table")
-                             ),
-                             box(title = "Visualization", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
-                                 width = 12, collapsed = FALSE,
-                                 selectInput("summary_stat_plot_type", "Plot Type",
-                                             choices = c("Boxplot", "Violin Plot"), 
-                                             selected = "Violin Plot"),
-                                 plotlyOutput("summary_stat_vis")
-                             )
+                         ),
+                         fluidRow(
+                           box(title = "Quick Visualization of Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                               width = 12, collapsed = TRUE,
+                               uiOutput("response_variable_graph"),
+                               uiOutput("x_variable_graph"),
+                               # fluidRow(
+                               #   box(title = "Graph", solidHeader = TRUE, 
+                               #     status = "primary", width = 12,
+                               echarts4rOutput("vis_data")
+                               #   )
+                               # )
                            )
                          )
                        )
-                )
-        ),
-        
-        tabItem(tabName = "Forecasting",
-                tabBox(id = "tabbox_2", width = 12,
-                       #### Forecasting tabpanel ####
-                       tabPanel("Forecasting", icon = icon("chart-line"), 
-                                fluidPage(
-                                  sidebarLayout(
-                                    sidebarPanel(
-                                      selectInput("data_type", "Select Data Type",
-                                                  choices = c("Time Series", "Non-Time Series")),
-                                      uiOutput("response_variable"),
-                                      uiOutput("x_variables"),
-                                      numericInput("horizon", "Forecast Horizon", value = 12, min = 1),
+                     ),
+                     #### Summary stat ####
+                     tabPanel(
+                       "Summary Statistics", icon = icon("chart-pie"),
+                       fluidPage(
+                         uiOutput("vars_stat"),
+                         fluidRow(
+                           box(title = "Summary Statistics", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                               width = 12, collapsed = TRUE,
+                               dataTableOutput("summary_stat_table")
+                           ),
+                           box(title = "Visualization", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                               width = 12, collapsed = FALSE,
+                               selectInput("summary_stat_plot_type", "Plot Type",
+                                           choices = c("Boxplot", "Violin Plot"), 
+                                           selected = "Violin Plot"),
+                               plotlyOutput("summary_stat_vis")
+                           )
+                         )
+                       )
+                     )
+              )
+      ),
+      
+      tabItem(tabName = "Forecasting",
+              tabBox(id = "tabbox_2", width = 12,
+                     #### Forecasting tabpanel ####
+                     tabPanel("Forecasting", icon = icon("chart-line"), 
+                              fluidPage(
+                                sidebarLayout(
+                                  sidebarPanel(
+                                    selectInput("data_type", "Select Data Type",
+                                                choices = c("Time Series", "Non-Time Series")),
+                                    uiOutput("response_variable"),
+                                    uiOutput("x_variables"),
+                                    numericInput("horizon", "Forecast Horizon", value = 12, min = 1),
+                                    conditionalPanel(
+                                      condition = "input.data_type == 'Time Series'",
+                                      checkboxInput("seasonal", "Is Data Seasonal?"),
                                       conditionalPanel(
-                                        condition = "input.data_type == 'Time Series'",
-                                        checkboxInput("seasonal", "Is Data Seasonal?"),
-                                        conditionalPanel(
-                                          condition = "input.seasonal",
-                                          numericInput("seasonal_period", "Seasonal Period", value = 12, min = 1)
-                                        ),
-                                        selectInput("model", "Select Time Series Model",
-                                                    choices = c("ARIMA", "SARIMA", "ARCH", "GARCH",
-                                                                # "LSTM", 
-                                                                "AutoML", "ETS"))
+                                        condition = "input.seasonal",
+                                        numericInput("seasonal_period", "Seasonal Period", value = 12, min = 1)
                                       ),
-                                      conditionalPanel(
-                                        condition = "input.data_type == 'Non-Time Series'",
-                                        selectInput("model1", "Select Model for Non-Time Series",
-                                                    choices = c("Linear Regression", "GLM", "Logistic Regression",
-                                                                "LASSO", "Ridge Regression"))
-                                      ),
-                                      actionButton("forecast", "Generate Forecast", icon = icon("arrow-right")),
-                                      br(),br(),
-                                      downloadButton("download", "Download")
+                                      selectInput("model", "Select Time Series Model",
+                                                  choices = c("ARIMA", "SARIMA", "ARCH", "GARCH",
+                                                              # "LSTM", 
+                                                              "AutoML", "ETS"))
                                     ),
-                                    mainPanel(
-                                      plotlyOutput("plot")
-                                    )
+                                    conditionalPanel(
+                                      condition = "input.data_type == 'Non-Time Series'",
+                                      selectInput("model1", "Select Model for Non-Time Series",
+                                                  choices = c("Linear Regression", "GLM", "Logistic Regression",
+                                                              "LASSO", "Ridge Regression"))
+                                    ),
+                                    actionButton("forecast", "Generate Forecast", icon = icon("arrow-right")),
+                                    br(),br(),
+                                    downloadButton("download", "Download")
+                                  ),
+                                  mainPanel(
+                                    plotlyOutput("plot")
                                   )
                                 )
-                       )
-                )
-        ),
-        
-        # About Section ####
-        tabItem(tabName = "About",
-                fluidPage(
-                  h1("About the App"),
-                  "The AI Forecasting Tool, based on the R Shiny architecture, provides a comprehensive and user-friendly platform for all your data analysis needs. R Shiny, a web application framework for R, allows for the creation of interactive and visually appealing applications without requiring extensive web development skills. Leveraging this powerful framework, users can seamlessly upload their data, make necessary edits, and visualize the information in an intuitive manner. The tool offers a variety of models to choose from, allowing for tailored predictions and forecasts to suit specific requirements. Once the forecasting process is complete, users can easily extract the results for further use. Moreover, the tool includes an interactive AI component that enables discussions on multiple topics, providing valuable insights and guidance throughout the analysis process. This combination of advanced functionality, ease of use, and interactive features makes the AI Forecasting Tool an essential asset for data-driven decision-making.", 
-                  h4("The top features are as follows -"),
-                  tags$ul(
-                    tags$li("Upload your data"),
-                    tags$li("Edit and visualize your data"),
-                    tags$li("Select desired model"),
-                    tags$li("Predict and forecast"),
-                    tags$li("Extract the results"),
-                    tags$li("Discuss multiple topics with AI")
-                  ),
-                  h1("Changelog"),
-                  fluidRow(
-                    box(title = "2024-07-05", collapsible = TRUE, status = "success", solidHeader = TRUE, 
-                        width = 12, collapsed = TRUE,
-                        tags$ul(class = "tick-list",
-                          tags$li("Data info added at homepage"),
-                          tags$li("New tab created - Summary Statistics"),
-                          tags$li("Boxplot, Violin Plot added")
-                        )
-                    ),
-                    box(title = "2024-07-03", collapsible = TRUE, status = "success", solidHeader = TRUE, 
-                        width = 12, collapsed = TRUE,
-                        tags$ul(class = "tick-list",
-                                tags$li("Multimodal AI Chatbot added"),
-                                tags$li("Outlier treatment added"),
-                                tags$li("Data visualization and editing added"),
-                                tags$li("File template & error handling added")
-                        )
-                    )
-                  )
-                  
-                )
-        )
-      )
-    ),
-    # right sidebar ####
-    controlbar = dashboardControlbar(
-      skin = "dark",
-      collapsed = FALSE,
-      overlay = FALSE,
-      width = 400,
+                              )
+                     )
+              )
+      ),
       
-      controlbarMenu(
-        id = "menu",
-        controlbarItem(
-          fluidPage(
+      # About Section ####
+      tabItem(tabName = "About",
+              fluidPage(
+                # tags$style('.container-fluid {
+                #            background-color: transparent;
+                #            background-image: url(brand logo.png); background-size: cover;
+                # }'),
+                h1(tags$img(src='brand logo.png', height = '50', width ='50'), 
+                   ("About the App")),
+                "The AI Forecasting Tool, based on the R Shiny architecture, provides a comprehensive and user-friendly platform for all your data analysis needs. R Shiny, a web application framework for R, allows for the creation of interactive and visually appealing applications without requiring extensive web development skills. Leveraging this powerful framework, users can seamlessly upload their data, make necessary edits, and visualize the information in an intuitive manner. The tool offers a variety of models to choose from, allowing for tailored predictions and forecasts to suit specific requirements. Once the forecasting process is complete, users can easily extract the results for further use. Moreover, the tool includes an interactive AI component that enables discussions on multiple topics, providing valuable insights and guidance throughout the analysis process. This combination of advanced functionality, ease of use, and interactive features makes the AI Forecasting Tool an essential asset for data-driven decision-making.", 
+                h4("The top features are as follows -"),
+                tags$ul(
+                  tags$li("Upload your data"),
+                  tags$li("Edit and visualize your data"),
+                  tags$li("Select desired model"),
+                  tags$li("Predict and forecast"),
+                  tags$li("Extract the results"),
+                  tags$li("Discuss multiple topics with AI")
+                ),
+                h1("Changelog"),
+                fluidRow(
+                  box(title = "2024-07-05", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                      width = 12, collapsed = TRUE,
+                      tags$ul(class = "tick-list",
+                              tags$li("Data info added at homepage"),
+                              tags$li("New tab created - Summary Statistics"),
+                              tags$li("Boxplot, Violin Plot added")
+                      )
+                  ),
+                  box(title = "2024-07-03", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                      width = 12, collapsed = TRUE,
+                      tags$ul(class = "tick-list",
+                              tags$li("Multimodal AI Chatbot added"),
+                              tags$li("Outlier treatment added"),
+                              tags$li("Data visualization and editing added"),
+                              tags$li("File template & error handling added")
+                      )
+                  )
+                )
+                
+              )
+      )
+    )
+  ),
+  # right sidebar ####
+  controlbar = dashboardControlbar(
+    skin = "dark",
+    collapsed = FALSE,
+    overlay = FALSE,
+    width = 400,
+    
+    controlbarMenu(
+      id = "menu",
+      controlbarItem(
+        fluidPage(
           # "Assistant",
           # LLM Models #####
           selectInput(
@@ -358,18 +363,18 @@ ui <- shinydashboardPlus::dashboardPage(
           tags$div(
             id = "chat-container",
             tags$div(id = "chat-history", 
-                     style = "overflow-y: scroll; height: 210px; display: flex; flex-direction: column; 
+                     style = "overflow-y: scroll; height: 280px; display: flex; flex-direction: column; 
                      text-align:left;", 
                      uiOutput("chat_history")),
             
             tags$div(id = "chat-input", tags$form(
               textAreaInput(
-                    inputId = "prompt",
-                    label = "",
-                    placeholder = "Type your message here...",
-                    width = "100%"
-                  ),
-              fileInput("file_chat", "Upload (.docx, .pptx)", accept = c(".docx", ".pptx")),
+                inputId = "prompt",
+                label = "",
+                placeholder = "Type your message here...",
+                width = "100%"
+              ),
+              # fileInput("file_chat", "Upload (.docx, .pptx)", accept = c(".docx", ".pptx")),
               fluidRow(
                 tags$div(
                   style = "margin-left: 0em;",
@@ -398,8 +403,10 @@ ui <- shinydashboardPlus::dashboardPage(
           
         )
       )
-      )
-    ),
-    footer = dashboardFooter(right = "By Soumyadipta Das", left = "2023"), 
-    scrollToTop = TRUE
-  )
+    )
+  ),
+  footer = dashboardFooter(right = "By Soumyadipta Das", 
+                           left = list(tags$img(src='brand logo.png', 
+                                                height = '25', width ='25'), "2023")), 
+  scrollToTop = TRUE
+)
