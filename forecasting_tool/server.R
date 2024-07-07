@@ -166,6 +166,7 @@ server <- function(input, output, session) {
   data <- reactive({
     df <- data_old()
     req(input$upload_data != 0)
+    print(data_edit)
     ##### modification of data as per edit #####
     data_edit_1 <- data_edit %>% tidyr::drop_na()
     if(nrow(data_edit_1) != 0){
@@ -173,10 +174,16 @@ server <- function(input, output, session) {
         df[data_edit_1[k, 1], data_edit_1[k, 2]] <- data_edit_1[k, 3]
       }
     }
-    #### Outlier treatment #####
-    for(i in 2:ncol(df)){
+    #### Outlier treatment ######
+    for(i in 1:ncol(df)){
       value = df[,i][df[,i] %in% boxplot.stats(df[,i])$out]
-      df[,i][df[,i] %in% value] = median(df[,i])
+      df[,i][df[,i] %in% value] = median(df[,i], na.rm = TRUE)
+    }
+    
+    #### Missing value imputation ######
+    for(i in 1:ncol(df)){
+      value = which(is.na(df[,i]))
+      df[,i][value] = median(df[,i], na.rm = TRUE)
     }
     
     return(df)
@@ -229,31 +236,36 @@ server <- function(input, output, session) {
   #### Summary stat ####
   data_prep_stat <- reactive({
     req(!is.null(data()))
+    n <- nrow(data())
     if(is.null(input$vars_stat_selected)){
       temp <- select_if(data(),is.numeric)
       temp_cols <- colnames(temp)
       temp_sum <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)) %>% mutate(type = "Sum")
       temp_mean <- temp %>% summarise_all(~ mean(.x, na.rm = TRUE)) %>% mutate(type = "Mean")
+      temp_obs <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)/mean(.x, na.rm = TRUE)) %>% 
+        mutate(type = "Observations")
       temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
       temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
       temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
       temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
       temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
       temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
-      temp <- temp_sum %>% bind_rows(temp_mean, temp_median, temp_mode, temp_max, 
+      temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_max, 
                                      temp_min, temp_skew, temp_kurt) %>% 
         select(type, all_of(temp_cols))
     } else {
       temp <- data() %>% select(input$vars_stat_selected)
       temp_sum <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)) %>% mutate(type = "Sum")
       temp_mean <- temp %>% summarise_all(~ mean(.x, na.rm = TRUE)) %>% mutate(type = "Mean")
+      temp_obs <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)/mean(.x, na.rm = TRUE)) %>% 
+        mutate(type = "Observations")
       temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
       temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
       temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
       temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
       temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
       temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
-      temp <- temp_sum %>% bind_rows(temp_mean, temp_median, temp_mode, temp_max, 
+      temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_max, 
                                      temp_min, temp_skew, temp_kurt) %>% 
         select(type, input$vars_stat_selected)
       
@@ -263,6 +275,17 @@ server <- function(input, output, session) {
   
   output$summary_stat_table <- renderDT(
     data_prep_stat(), filter = "top", selection = 'none', rownames = FALSE
+  )
+  
+  #### Summary Stat download ####
+  output$summary_stat_download <- downloadHandler(
+    filename = function(){
+      paste("summary_stat", ".csv", sep = "")
+    },
+    content = function(file){
+      temp = data_prep_stat()
+      write.csv(temp, file, row.names = FALSE)
+    }
   )
   
   #### sumarry stat visualization ####

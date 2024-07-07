@@ -197,7 +197,7 @@ ui <- shinydashboardPlus::dashboardPage(
                            )
                          ),
                          fluidRow(
-                           box(title = "Quick Visualization of Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                           box(title = "Quick Visualization", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
                                width = 12, collapsed = TRUE,
                                uiOutput("response_variable_graph"),
                                uiOutput("x_variable_graph"),
@@ -219,7 +219,8 @@ ui <- shinydashboardPlus::dashboardPage(
                          fluidRow(
                            box(title = "Summary Statistics", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
                                width = 12, collapsed = TRUE,
-                               dataTableOutput("summary_stat_table")
+                               dataTableOutput("summary_stat_table"),
+                               downloadButton("summary_stat_download", "Download Summary Statistics")
                            ),
                            box(title = "Visualization", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
                                width = 12, collapsed = FALSE,
@@ -298,12 +299,13 @@ ui <- shinydashboardPlus::dashboardPage(
                 ),
                 h1("Changelog"),
                 fluidRow(
-                  box(title = "2024-07-05", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                  box(title = "2024-07-07", collapsible = TRUE, status = "success", solidHeader = TRUE, 
                       width = 12, collapsed = TRUE,
                       tags$ul(class = "tick-list",
                               tags$li("Data info added at homepage"),
                               tags$li("New tab created - Summary Statistics"),
-                              tags$li("Boxplot, Violin Plot added")
+                              tags$li("Boxplot, Violin Plot added"),
+                              tags$li("Missing value imputation added")
                       )
                   ),
                   box(title = "2024-07-03", collapsible = TRUE, status = "success", solidHeader = TRUE, 
