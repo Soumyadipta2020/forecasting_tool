@@ -1,6 +1,6 @@
 #### UI ####
 ui <- shinydashboardPlus::dashboardPage(
-  title = "Forecasting Tool",
+  title = "AI Forecasting Tool",
   preloader = list(),
   skin = "blue",
   # options = list(sidebarExpandOnHover = TRUE),
@@ -225,7 +225,7 @@ ui <- shinydashboardPlus::dashboardPage(
                            box(title = "Visualization", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
                                width = 12, collapsed = FALSE,
                                selectInput("summary_stat_plot_type", "Plot Type",
-                                           choices = c("Boxplot", "Violin Plot"), 
+                                           choices = c("Boxplot", "Violin Plot", "Histogram"), 
                                            selected = "Violin Plot"),
                                plotlyOutput("summary_stat_vis")
                            )
@@ -299,6 +299,13 @@ ui <- shinydashboardPlus::dashboardPage(
                 ),
                 h1("Changelog"),
                 fluidRow(
+                  box(title = "2024-07-15", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                      width = 12, collapsed = TRUE,
+                      tags$ul(class = "tick-list",
+                              tags$li("Histogram added for summary statistics visualization"),
+                              tags$li("Variance, IQR & Standard deviation added for summary statistics")
+                      )
+                  ),
                   box(title = "2024-07-07", collapsible = TRUE, status = "success", solidHeader = TRUE, 
                       width = 12, collapsed = TRUE,
                       tags$ul(class = "tick-list",
@@ -407,8 +414,8 @@ ui <- shinydashboardPlus::dashboardPage(
       )
     )
   ),
-  footer = dashboardFooter(right = "By Soumyadipta Das", 
+  footer = dashboardFooter(right = tags$a(href = "https://sites.google.com/view/soumyadipta-das", "Soumyadipta Das"), 
                            left = list(tags$img(src='brand logo.png', 
-                                                height = '25', width ='25'), "2023")), 
+                                                height = '25', width ='25'), "© 2023")), 
   scrollToTop = TRUE
 )

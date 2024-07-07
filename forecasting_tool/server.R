@@ -9,7 +9,7 @@ server <- function(input, output, session) {
     } else {
       HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
                        "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
-                       "&nbsp; v.0.02 &nbsp;", "</span>"))
+                       "&nbsp; v.0.03.1 &nbsp;", "</span>"))
     }
   })
   
@@ -166,7 +166,6 @@ server <- function(input, output, session) {
   data <- reactive({
     df <- data_old()
     req(input$upload_data != 0)
-    print(data_edit)
     ##### modification of data as per edit #####
     data_edit_1 <- data_edit %>% tidyr::drop_na()
     if(nrow(data_edit_1) != 0){
@@ -246,12 +245,15 @@ server <- function(input, output, session) {
         mutate(type = "Observations")
       temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
       temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
+      temp_sd <- temp %>% summarise_all(~ sd(.x, na = TRUE)) %>% mutate(type = "Standard Deviation")
+      temp_var <- temp %>% summarise_all(~ var(.x, na = TRUE)) %>% mutate(type = "Variance")
       temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
       temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
       temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
       temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
-      temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_max, 
-                                     temp_min, temp_skew, temp_kurt) %>% 
+      temp_iqr <- temp %>% summarise_all(~ IQR(.x, na.rm = TRUE)) %>% mutate(type = "Interquartile Range")
+      temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_sd, 
+                                     temp_var, temp_max, temp_min, temp_skew, temp_kurt, temp_iqr) %>% 
         select(type, all_of(temp_cols))
     } else {
       temp <- data() %>% select(input$vars_stat_selected)
@@ -261,12 +263,15 @@ server <- function(input, output, session) {
         mutate(type = "Observations")
       temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
       temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
+      temp_sd <- temp %>% summarise_all(~ sd(.x, na = TRUE)) %>% mutate(type = "Standard Deviation")
+      temp_var <- temp %>% summarise_all(~ var(.x, na = TRUE)) %>% mutate(type = "Variance")
       temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
       temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
       temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
       temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
-      temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_max, 
-                                     temp_min, temp_skew, temp_kurt) %>% 
+      temp_iqr <- temp %>% summarise_all(~ IQR(.x, na.rm = TRUE)) %>% mutate(type = "Interquartile Range")
+      temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_sd, 
+                                     temp_var, temp_max, temp_min, temp_skew, temp_kurt, temp_iqr) %>% 
         select(type, input$vars_stat_selected)
       
     }
@@ -326,6 +331,14 @@ server <- function(input, output, session) {
               visible = T
             )
           ) %>% layout(title = "Violin Plot")
+      } else if(input$summary_stat_plot_type == "Histogram") {
+        fig <- plot_ly(alpha = 0.5)
+        for(i in 1:nvar){
+          fig <- fig %>% add_histogram(x = temp[,i], name=temp_cols[i])
+        }
+        fig <- fig %>% 
+          layout(barmode = "overlay") %>% 
+          layout(title = "Histogram")
       }
     })
     
