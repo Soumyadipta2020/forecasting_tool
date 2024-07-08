@@ -1,5 +1,6 @@
 # AI Forecating Tool
-[photo]: forecasting_tool/www/brand logo.png
+[photo]: http://www.google.com/images/logo.gif
+forecasting_tool/www/brand logo.png
 
 ![Google logo](http://www.google.com/images/logo.gif "The Google logo")
 
