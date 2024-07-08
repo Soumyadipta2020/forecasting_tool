@@ -1,5 +1,5 @@
 # AI Forecating Tool
-![photo](forecasting_tool/www/brand logo.png)
+![photo](https://github.com/Soumyadipta2020/forecasting_tool/blob/main/forecasting_tool/www/brand logo.png?raw=true)
 
 
 ![Google logo](http://www.google.com/images/logo.gif "The Google logo")
