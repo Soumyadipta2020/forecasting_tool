@@ -19,6 +19,7 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "tabbox_1", selected = "Data")
   })
   
+  
   # # login ####
   # if(read.csv("data_reload.csv", header = TRUE)[1,1] == 1){
   #   showModal(shiny::modalDialog(
