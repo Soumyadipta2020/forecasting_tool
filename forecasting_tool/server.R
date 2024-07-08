@@ -93,41 +93,43 @@ server <- function(input, output, session) {
   )
   #### data upload ####
   data_old <- reactive({
-    req(input$file)
-    df <- read.csv(input$file$datapath)
-    
-    ##### column type checking #####
-    col_type_check <- ((sum(1*((as.vector(sapply(df, class)))=="numeric")) + 
-                          sum(1*((as.vector(sapply(df, class)))=="integer"))) >= ncol(df) - 1)
-    if(!col_type_check){
-      shinyFeedback::hideFeedback("file")
-      shinyFeedback::feedbackDanger("file", !col_type_check, "Invalid file format. Please download the template.")
-      req(col_type_check)
-    } else{
-      shinyFeedback::hideFeedback("file")
-      shinyFeedback::feedbackSuccess("file", col_type_check, "Successfully Uploaded.")
-      req(col_type_check)
+    withProgress(message = "Loading....", {
+      req(input$file)
+      df <- read.csv(input$file$datapath)
       
-      #### render data table #####
-      output$uploaded_data <- renderDT(df, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
-      
-      df1 <<- df
-      
-      #### data edit step note #####
-      observeEvent(input$uploaded_data_cell_edit, {
-        info = input$uploaded_data_cell_edit
-        str(info)
-        i = info$row
-        j = info$col + 1
-        v = info$value
-        df1[i, j] <<- v
-        output$uploaded_data <- renderDT(df1, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
-        temp <- data.frame(row = i, col = j, value = v)
-        data_edit <<- rbind(data_edit, temp)
-      })
-      
-      return(df)
-    }
+      ##### column type checking #####
+      col_type_check <- ((sum(1*((as.vector(sapply(df, class)))=="numeric")) + 
+                            sum(1*((as.vector(sapply(df, class)))=="integer"))) >= ncol(df) - 1)
+      if(!col_type_check){
+        shinyFeedback::hideFeedback("file")
+        shinyFeedback::feedbackDanger("file", !col_type_check, "Invalid file format. Please download the template.")
+        req(col_type_check)
+      } else{
+        shinyFeedback::hideFeedback("file")
+        shinyFeedback::feedbackSuccess("file", col_type_check, "Successfully Uploaded.")
+        req(col_type_check)
+        
+        #### render data table #####
+        output$uploaded_data <- renderDT(df, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+        
+        df1 <<- df
+        
+        #### data edit step note #####
+        observeEvent(input$uploaded_data_cell_edit, {
+          info = input$uploaded_data_cell_edit
+          str(info)
+          i = info$row
+          j = info$col + 1
+          v = info$value
+          df1[i, j] <<- v
+          output$uploaded_data <- renderDT(df1, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+          temp <- data.frame(row = i, col = j, value = v)
+          data_edit <<- rbind(data_edit, temp)
+        })
+        
+        return(df)
+      }
+    })
   })
   
   #### Data info ####
@@ -202,9 +204,11 @@ server <- function(input, output, session) {
   })
   #### graph data ####
   data_graph <- reactive({
-    temp <- data_old() %>% select(input$x_variables_graph, input$y_variable_graph) %>% 
-      rename(Var1 = input$x_variables_graph, Var2 = input$y_variable_graph)
-    return(temp)
+    withProgress(message = "Loading....", {
+      temp <- data_old() %>% select(input$x_variables_graph, input$y_variable_graph) %>% 
+        rename(Var1 = input$x_variables_graph, Var2 = input$y_variable_graph)
+      return(temp)
+    })
   })
   #### graph ####
   output$vis_data <- renderEcharts4r({
@@ -233,49 +237,51 @@ server <- function(input, output, session) {
   })
   
   #### Summary stat ####
-  data_prep_stat <- reactive({
-    req(!is.null(data()))
-    n <- nrow(data())
-    if(is.null(input$vars_stat_selected)){
-      temp <- select_if(data(),is.numeric)
-      temp_cols <- colnames(temp)
-      temp_sum <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)) %>% mutate(type = "Sum")
-      temp_mean <- temp %>% summarise_all(~ mean(.x, na.rm = TRUE)) %>% mutate(type = "Mean")
-      temp_obs <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)/mean(.x, na.rm = TRUE)) %>% 
-        mutate(type = "Observations")
-      temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
-      temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
-      temp_sd <- temp %>% summarise_all(~ sd(.x, na = TRUE)) %>% mutate(type = "Standard Deviation")
-      temp_var <- temp %>% summarise_all(~ var(.x, na = TRUE)) %>% mutate(type = "Variance")
-      temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
-      temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
-      temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
-      temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
-      temp_iqr <- temp %>% summarise_all(~ IQR(.x, na.rm = TRUE)) %>% mutate(type = "Interquartile Range")
-      temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_sd, 
-                                     temp_var, temp_max, temp_min, temp_skew, temp_kurt, temp_iqr) %>% 
-        select(type, all_of(temp_cols))
-    } else {
-      temp <- data() %>% select(input$vars_stat_selected)
-      temp_sum <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)) %>% mutate(type = "Sum")
-      temp_mean <- temp %>% summarise_all(~ mean(.x, na.rm = TRUE)) %>% mutate(type = "Mean")
-      temp_obs <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)/mean(.x, na.rm = TRUE)) %>% 
-        mutate(type = "Observations")
-      temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
-      temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
-      temp_sd <- temp %>% summarise_all(~ sd(.x, na = TRUE)) %>% mutate(type = "Standard Deviation")
-      temp_var <- temp %>% summarise_all(~ var(.x, na = TRUE)) %>% mutate(type = "Variance")
-      temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
-      temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
-      temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
-      temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
-      temp_iqr <- temp %>% summarise_all(~ IQR(.x, na.rm = TRUE)) %>% mutate(type = "Interquartile Range")
-      temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_sd, 
-                                     temp_var, temp_max, temp_min, temp_skew, temp_kurt, temp_iqr) %>% 
-        select(type, input$vars_stat_selected)
-      
-    }
-    return(temp)
+  data_prep_stat <- eventReactive(c(input$vars_stat_selected, input$upload_data), {
+    withProgress(message = "Loading....", {
+      req(!is.null(data()))
+      n <- nrow(data())
+      if(is.null(input$vars_stat_selected)){
+        temp <- select_if(data(),is.numeric)
+        temp_cols <- colnames(temp)
+        temp_sum <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)) %>% mutate(type = "Sum")
+        temp_mean <- temp %>% summarise_all(~ mean(.x, na.rm = TRUE)) %>% mutate(type = "Mean")
+        temp_obs <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)/mean(.x, na.rm = TRUE)) %>% 
+          mutate(type = "Observations")
+        temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
+        temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
+        temp_sd <- temp %>% summarise_all(~ sd(.x, na = TRUE)) %>% mutate(type = "Standard Deviation")
+        temp_var <- temp %>% summarise_all(~ var(.x, na = TRUE)) %>% mutate(type = "Variance")
+        temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
+        temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
+        temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
+        temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
+        temp_iqr <- temp %>% summarise_all(~ IQR(.x, na.rm = TRUE)) %>% mutate(type = "Interquartile Range")
+        temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_sd, 
+                                       temp_var, temp_max, temp_min, temp_skew, temp_kurt, temp_iqr) %>% 
+          select(type, all_of(temp_cols))
+      } else {
+        temp <- data() %>% select(input$vars_stat_selected) %>% select_if(is.numeric)
+        temp_sum <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)) %>% mutate(type = "Sum")
+        temp_mean <- temp %>% summarise_all(~ mean(.x, na.rm = TRUE)) %>% mutate(type = "Mean")
+        temp_obs <- temp %>% summarise_all(~ sum(.x, na.rm = TRUE)/mean(.x, na.rm = TRUE)) %>% 
+          mutate(type = "Observations")
+        temp_median <- temp %>% summarise_all(~ median(.x, na.rm = TRUE)) %>% mutate(type = "Median")
+        temp_mode <- temp %>% summarise_all(~ getmode(.x, na = TRUE)) %>% mutate(type = "Mode")
+        temp_sd <- temp %>% summarise_all(~ sd(.x, na = TRUE)) %>% mutate(type = "Standard Deviation")
+        temp_var <- temp %>% summarise_all(~ var(.x, na = TRUE)) %>% mutate(type = "Variance")
+        temp_max <- temp %>% summarise_all(~ max(.x, na.rm = TRUE)) %>% mutate(type = "Maximum")
+        temp_min <- temp %>% summarise_all(~ min(.x, na.rm = TRUE)) %>% mutate(type = "Minimum")
+        temp_skew <- temp %>% summarise_all(~ skewness(.x, na.rm = TRUE)) %>% mutate(type = "skewness")
+        temp_kurt <- temp %>% summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>% mutate(type = "Kurtosis")
+        temp_iqr <- temp %>% summarise_all(~ IQR(.x, na.rm = TRUE)) %>% mutate(type = "Interquartile Range")
+        temp <- temp_sum %>% bind_rows(temp_obs, temp_mean, temp_median, temp_mode, temp_sd, 
+                                       temp_var, temp_max, temp_min, temp_skew, temp_kurt, temp_iqr) %>% 
+          select(type, input$vars_stat_selected)
+        
+      }
+      return(temp)
+    })
   })
   
   output$summary_stat_table <- renderDT(
@@ -294,7 +300,7 @@ server <- function(input, output, session) {
   )
   
   #### sumarry stat visualization ####
-  summary_stat_fig <- reactive({
+  summary_stat_fig <- eventReactive(c(input$vars_stat_selected, input$upload_data), {
     withProgress(message = "Loading....",{
       req(!is.null(data()))
       
@@ -393,83 +399,95 @@ server <- function(input, output, session) {
   })
   #### forecasting function ####
   forecastData <- reactive({
-    if (input$data_type == "Time Series") {
-      req(tsData(), input$model)
-      model <- switch(input$model,
-                      "ARIMA" = auto.arima(tsData()),
-                      "SARIMA" = auto.arima(tsData(), seasonal = TRUE),
-                      "ARCH" = {
-                        spec <- ugarchspec(variance.model = list(model = "sGARCH"))
-                        fit <- ugarchfit(spec, data = tsData())
-                        fitted(fit)
-                      },
-                      "GARCH" = {
-                        spec <- ugarchspec(variance.model = list(model = "gjrGARCH"))
-                        fit <- ugarchfit(spec, data = tsData())
-                        fitted(fit)
-                      },
-                      # "LSTM" = lstm_forecast(tsData(), input$horizon),
-                      "AutoML" = automl_forecast(tsData(), input$horizon),
-                      "ETS" = forecast::forecast(tsData(), h = input$horizon)
-      )
-      
-      if (!is.null(model)) {
-        forecast_values <- forecast(model, h = input$horizon)
-        forecast_values
-      }
-    } 
-    
-    if (input$data_type == "Non-Time Series") {
-      req(!is.null(input$response_variable), input$x_variables, input$model1)
-      
-      model <- switch(input$model1,
-                      "Linear Regression" = {
-                        model_fit <- lm(data = data(),
-                                        formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + "))))
-                        model_fit
-                      },
-                      "GLM" = {
-                        model_fit <- glm(data = data(),
-                                         formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + "))),
-                                         family = gaussian)
-                        model_fit
-                      },
-                      "Logistic Regression" = {
-                        model_fit <- glm(data = data(),
-                                         formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + "))),
-                                         family = binomial)
-                        model_fit
-                      },
-                      "LASSO" = {
-                        model_fit <- glmnet(x = as.matrix(data()[input$x_variables]), 
-                                            y = data()[input$response_variable][,1], alpha = 1)
-                        model_fit
-                      },
-                      "Ridge Regression" = {
-                        model_fit <- glmnet(x = as.matrix(data()[input$x_variables]), 
-                                            y = data()[input$response_variable][,1], alpha = 0)
-                        model_fit
-                      }
-      )
-      
-      if (!is.null(model)) {
-        # Check if forecast function exists
-        if (input$model1 %in% c("Linear Regression", "GLM", "Logistic Regression")){
-          forecast_values <- predict(model, newdata = data.frame(data()[input$x_variables]))
-          forecast_values <- as.numeric(forecast_values)
-        } else if (input$model1 %in% c("Classification", "LASSO", "Ridge Regression")) {
-          # For non-time series data, use the fitted model to get forecasted values
-          forecast_values <- predict(model, newx = as.matrix(data()[input$x_variables]))
-          print(forecast_values)
-          forecast_values <- as.numeric(forecast_values)
-        }
+    withProgress(message = "Loading...", {
+      if (input$data_type == "Time Series") {
+        req(tsData(), input$model)
+        model <- switch(input$model,
+                        "ARIMA" = auto.arima(tsData()),
+                        "SARIMA" = auto.arima(tsData(), seasonal = TRUE),
+                        "ARCH" = {
+                          spec <- ugarchspec(variance.model = list(model = "sGARCH"))
+                          fit <- ugarchfit(spec, data = tsData())
+                          fitted(fit)
+                        },
+                        "GARCH" = {
+                          spec <- ugarchspec(variance.model = list(model = "gjrGARCH"))
+                          fit <- ugarchfit(spec, data = tsData())
+                          fitted(fit)
+                        },
+                        # "LSTM" = lstm_forecast(tsData(), input$horizon),
+                        "AutoML" = automl_forecast(tsData(), input$horizon),
+                        "ETS" = forecast::forecast(tsData(), h = input$horizon)
+        )
         
-      } else{
-        NULL
-      }
-    } 
-    
-    return(forecast_values)
+        if (!is.null(model)) {
+          forecast_values <- forecast(model, h = input$horizon)
+          forecast_values <- c(fitted(model),forecast_values$mean)
+        }
+      } 
+      
+      if (input$data_type == "Non-Time Series") {
+        req(!is.null(input$response_variable), input$x_variables, input$model1)
+        
+        model <- switch(input$model1,
+                        "Linear Regression" = {
+                          model_fit <- lm(data = data(),
+                                          formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + "))))
+                          model_fit
+                        },
+                        "GLM" = {
+                          model_fit <- glm(data = data(),
+                                           formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + "))),
+                                           family = gaussian)
+                          model_fit
+                        },
+                        "Logistic Regression" = {
+                          model_fit <- glm(data = data(),
+                                           formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + "))),
+                                           family = binomial)
+                          model_fit
+                        },
+                        "LASSO" = {
+                          cv_model <- cv.glmnet(x = data.matrix(data()[input$x_variables]), 
+                                                y = data()[input$response_variable][,1], 
+                                                alpha = 1)
+                          best_lambda <- cv_model$lambda.min
+                          model_fit <- glmnet(x = as.matrix(data()[input$x_variables]), 
+                                              y = data()[input$response_variable][,1], 
+                                              alpha = 1, lambda = best_lambda)
+                          model_fit
+                        },
+                        "Ridge Regression" = {
+                          cv_model <- cv.glmnet(x = data.matrix(data()[input$x_variables]), 
+                                                y = data()[input$response_variable][,1], 
+                                                alpha = 0)
+                          best_lambda <- cv_model$lambda.min
+                          model_fit <- glmnet(x = as.matrix(data()[input$x_variables]), 
+                                              y = data()[input$response_variable][,1], 
+                                              alpha = 0, lambda = best_lambda)
+                          model_fit
+                        }
+        )
+        
+        if (!is.null(model)) {
+          # Check if forecast function exists
+          if (input$model1 %in% c("Linear Regression", "GLM", "Logistic Regression")){
+            forecast_values <- predict(model, newdata = data.frame(data()[input$x_variables]))
+            forecast_values <- as.numeric(forecast_values)
+          } else if (input$model1 %in% c("Classification", "LASSO", "Ridge Regression")) {
+            # For non-time series data, use the fitted model to get forecasted values
+            forecast_values <- predict(model, newx = as.matrix(data()[input$x_variables]))
+            print(forecast_values)
+            forecast_values <- as.numeric(forecast_values)
+          }
+          
+        } else{
+          NULL
+        }
+      } 
+      
+      return(forecast_values)
+    })
   })
   #### forecast ####
   observeEvent(input$forecast, {
@@ -506,13 +524,13 @@ server <- function(input, output, session) {
     if (!is.null(forecastData())) {
       
       if(input$data_type == "Time Series"){
-        forecast_values <- forecastData()$mean
-        forecast_length <- length(forecast_values)
+        forecast_values <- forecastData()
+        forecast_length <- input$horizon
         forecast_dates <- seq(time(tsData())[length(tsData())] + 1/12, by = 1/12, length.out = forecast_length)
         
         forecast_plot_data <- data.frame(
           x = c(time(tsData()), forecast_dates),
-          y = c(as.numeric(tsData()), forecast_values),
+          y = forecast_values,
           type = "scatter",
           mode = "lines",
           name = "Forecast"
@@ -560,22 +578,68 @@ server <- function(input, output, session) {
     content = function(file) {
       if (!is.null(forecastData())) {
         if(input$data_type == "Time Series"){
-          forecast_values <- forecastData()$mean
-          forecast_dates <- seq(time(tsData())[length(tsData())] + 1/12, by = 1/12, length.out = input$horizon)
-          forecast_df <- data.frame(Date = forecast_dates, Forecast = forecast_values)
+          forecast_values <- forecastData()
+          forecast_dates <- seq(1, by = 1, length.out = length(forecast_values))
+          forecast_df <- data.frame(Date = forecast_dates, 
+                                    Actuals = c(tsData(), rep(NA, times = input$horizon)), 
+                                    Forecast = forecast_values)
           write.csv(forecast_df, file, row.names = FALSE)
         } 
         
         if(input$data_type == "Non-Time Series"){
           forecast_values <- forecastData()
           forecast_seq <- seq(1, by = 1, length.out = length(forecastData()))
-          forecast_df <- data.frame(Sequence = forecast_seq, Forecast = forecast_values)
+          forecast_df <- data.frame(Sequence = forecast_seq, 
+                                    Actuals = c(data()[input$response_variable][,1]), 
+                                    Forecast = forecast_values)
           write.csv(forecast_df, file, row.names = FALSE)
         }
       }
     }
     
   )
+  
+  
+  #### Model Accuracy ####
+  output$model_accuracy <- renderUI({
+    req(!is.null(forecastData()))
+    req(input$forecast != 0)
+    y <- data()[input$response_variable][,1]
+    len_y <- length(y)
+    forecast_values <- forecastData()[1:len_y]
+    
+    list(
+      valueBox(
+        value = paste(round(MLmetrics::MAPE(forecast_values, y)*100,1), "%", sep = " "),
+        subtitle = "MAPE",
+        icon = shiny::icon("star-half-stroke"),
+        color = ifelse(MLmetrics::MAPE(forecast_values, y) < 0.1, "green",
+                       ifelse(MLmetrics::MAPE(forecast_values, y) >= 0.1 &
+                                MLmetrics::MAPE(forecast_values, y) < 0.2, "yellow",
+                              "red")),
+        width = 4),
+      valueBox(
+        value = paste(round(MLmetrics::RMSPE(forecast_values, y)*100,1), "%", sep = " "),
+        subtitle = "RMSPE",
+        icon = shiny::icon("square-root-variable"),
+        color = ifelse(MLmetrics::RMSPE(forecast_values, y) < 0.1, "green",
+                       ifelse(MLmetrics::RMSPE(forecast_values, y) >= 0.1 &
+                                MLmetrics::RMSPE(forecast_values, y) < 0.2, "yellow",
+                              "red")),
+        width = 4),
+      valueBox(
+        value = paste(round(MLmetrics::R2_Score(forecast_values, y)*100,1),"%", sep = " "),
+        subtitle = "R2 Score",
+        icon = shiny::icon("window-restore"),
+        color = ifelse(MLmetrics::R2_Score(forecast_values, y) > 0.85, "green",
+                       ifelse(MLmetrics::R2_Score(forecast_values, y) <= 0.85 &
+                                MLmetrics::R2_Score(forecast_values, y) > 0.7, "yellow",
+                              "red")),
+        width = 4)
+
+    )
+    
+  })
   
   # Chat ####
   rv <- reactiveValues()
