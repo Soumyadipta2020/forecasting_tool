@@ -5,7 +5,7 @@ server <- function(input, output, session) {
   output$header_ui <- renderUI({
     if (input$sidebarCollapsed) {
       # "FT"
-      tags$img(src='brand logo.png', height = '35', width ='35')
+      tags$img(src='brand_logo.png', height = '35', width ='35')
     } else {
       HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
                        "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
