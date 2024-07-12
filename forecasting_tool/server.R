@@ -301,7 +301,8 @@ server <- function(input, output, session) {
   )
   
   #### sumarry stat visualization ####
-  summary_stat_fig <- eventReactive(c(input$vars_stat_selected, input$upload_data), {
+  summary_stat_fig <- eventReactive(c(input$vars_stat_selected, input$upload_data, 
+                                      input$summary_stat_plot_type), {
     withProgress(message = "Loading....",{
       req(!is.null(data()))
       

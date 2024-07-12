@@ -298,7 +298,7 @@ ui <- shinydashboardPlus::dashboardPage(
                 ),
                 h1("Changelog"),
                 fluidRow(
-                  box(title = "2024-07-15", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                  box(title = "2024-07-11", collapsible = TRUE, status = "success", solidHeader = TRUE, 
                       width = 12, collapsed = TRUE,
                       tags$ul(class = "tick-list",
                               tags$li("Histogram added for summary statistics visualization"),
