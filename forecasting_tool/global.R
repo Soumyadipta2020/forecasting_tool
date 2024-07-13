@@ -37,6 +37,8 @@ library(echarts4r)
 library(shinymanager)
 library(moments)
 library(tidyr)
+library(shinyWidgets)
+library(leaflet)
 
 source("helper.R")
 

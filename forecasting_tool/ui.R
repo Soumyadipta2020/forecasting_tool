@@ -35,6 +35,7 @@ ui <- shinydashboardPlus::dashboardPage(
                                ###### menuitem ######
                                menuItem("Home", tabName = "Home", icon = icon("home")),
                                menuItem("Forecasting", tabName = "Forecasting", icon = icon("chart-line")),
+                               menuItem("Your Location", tabName = "Users", icon = icon("map-location-dot")),
                                menuItem("About", tabName = "About", icon = icon("circle-info"))
                              )
   ),
@@ -73,6 +74,9 @@ ui <- shinydashboardPlus::dashboardPage(
     #   })
     #  ')),
     tags$script(HTML("$('body').addClass('fixed');")),
+    tags$head(
+      tags$script(src="getIP.js")
+    ),
     tags$head(tags$style(HTML('
       
         .dropdown-menu {
@@ -270,15 +274,40 @@ ui <- shinydashboardPlus::dashboardPage(
                                     downloadButton("download", "Download")
                                   ),
                                   mainPanel(
-                                    plotlyOutput("plot"),
-                                    br(), 
-                                    # h1("Accuracy Measures -"),
+                                    radioGroupButtons(
+                                      inputId = "change_plot",
+                                      label = NULL,
+                                      choices = c(
+                                        `<i class='fa fa-bar-chart'></i>` = "visual",
+                                        `<i class='fa-solid fa-microchip'></i>` = "model_sum"
+                                      ),
+                                      justified = TRUE,
+                                      selected = "visual"
+                                    ),
+                                    conditionalPanel(
+                                      condition = "input.change_plot == 'visual'",
+                                      plotlyOutput("plot")
+                                    ),
+                                    conditionalPanel(
+                                      condition = "input.change_plot == 'model_sum'",
+                                      verbatimTextOutput("fitted_model")
+                                    ),
+                                    br(),
                                     uiOutput("model_accuracy")
                                   )
                                 )
                               )
                      )
               )
+      ),
+      #### Users ####
+      tabItem(
+        tabName = "Users",
+        fluidPage(
+          leafletOutput("mymap"),
+          br(),
+          "** Your location don't get stored, just for fun **"
+        )
       ),
       
       # About Section ####
@@ -298,6 +327,14 @@ ui <- shinydashboardPlus::dashboardPage(
                 ),
                 h1("Changelog"),
                 fluidRow(
+                  box(title = "2024-07-13", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                      width = 12, collapsed = TRUE,
+                      tags$ul(class = "tick-list",
+                              tags$li("Model summary added for fitted models in forecasting tab"),
+                              tags$li("Switching between forecast plot and model summary is now possible"),
+                              tags$li("Know your IP location added")
+                      )
+                  ),
                   box(title = "2024-07-11", collapsible = TRUE, status = "success", solidHeader = TRUE, 
                       width = 12, collapsed = TRUE,
                       tags$ul(class = "tick-list",

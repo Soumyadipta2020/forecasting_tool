@@ -9,7 +9,7 @@ server <- function(input, output, session) {
     } else {
       HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
                        "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
-                       "&nbsp; v.0.03.1 &nbsp;", "</span>"))
+                       "&nbsp; v.0.03.2 &nbsp;", "</span>"))
     }
   })
   
@@ -488,7 +488,7 @@ server <- function(input, output, session) {
         }
       } 
       
-      return(forecast_values)
+      return(list(Forecast = forecast_values, Model = model))
     })
   })
   #### forecast ####
@@ -526,7 +526,7 @@ server <- function(input, output, session) {
     if (!is.null(forecastData())) {
       
       if(input$data_type == "Time Series"){
-        forecast_values <- forecastData()
+        forecast_values <- forecastData()$Forecast
         forecast_length <- input$horizon
         forecast_dates <- seq(time(tsData())[length(tsData())] + 1/12, by = 1/12, length.out = forecast_length)
         
@@ -539,7 +539,7 @@ server <- function(input, output, session) {
         )
       } 
       if(input$data_type == "Non-Time Series"){
-        forecast_values <- forecastData()
+        forecast_values <- forecastData()$Forecast
         
         forecast_plot_data <- data.frame(
           x = dplyr::row_number(data()),
@@ -580,7 +580,7 @@ server <- function(input, output, session) {
     content = function(file) {
       if (!is.null(forecastData())) {
         if(input$data_type == "Time Series"){
-          forecast_values <- forecastData()
+          forecast_values <- forecastData()$Forecast
           forecast_dates <- seq(1, by = 1, length.out = length(forecast_values))
           forecast_df <- data.frame(Date = forecast_dates, 
                                     Actuals = c(tsData(), rep(NA, times = input$horizon)), 
@@ -589,8 +589,8 @@ server <- function(input, output, session) {
         } 
         
         if(input$data_type == "Non-Time Series"){
-          forecast_values <- forecastData()
-          forecast_seq <- seq(1, by = 1, length.out = length(forecastData()))
+          forecast_values <- forecastData()$Forecast
+          forecast_seq <- seq(1, by = 1, length.out = length(forecast_values))
           forecast_df <- data.frame(Sequence = forecast_seq, 
                                     Actuals = c(data()[input$response_variable][,1]), 
                                     Forecast = forecast_values)
@@ -601,6 +601,12 @@ server <- function(input, output, session) {
     
   )
   
+  #### Display fitted model ####
+  output$fitted_model <- renderPrint({
+    req(!is.null(forecastData()))
+    summary(forecastData()$Model)
+  })
+  
   
   #### Model Accuracy ####
   output$model_accuracy <- renderUI({
@@ -608,7 +614,7 @@ server <- function(input, output, session) {
     req(input$forecast != 0)
     y <- data()[input$response_variable][,1]
     len_y <- length(y)
-    forecast_values <- forecastData()[1:len_y]
+    forecast_values <- forecastData()$Forecast[1:len_y]
     
     list(
       valueBox(
@@ -872,5 +878,19 @@ server <- function(input, output, session) {
     })
     rv$chat_history <- NULL
     updateTextInput(session, "prompt", value = "")
+  })
+  
+  #### User Location ####
+  IP <- reactive({ input$getIP })
+  
+  output$mymap <- renderLeaflet({
+    temp <- IP()$loc
+    temp <- as.numeric(unlist(str_split(temp,",")))
+    points <- data.frame(lat = temp[1], lon = temp[2])
+    leaflet() %>%
+      addProviderTiles(providers$Stadia.StamenTonerLite,
+                       options = providerTileOptions(noWrap = TRUE)
+      ) %>%
+      addMarkers(data = points)
   })
 }
