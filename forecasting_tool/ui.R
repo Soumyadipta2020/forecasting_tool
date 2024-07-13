@@ -35,7 +35,7 @@ ui <- shinydashboardPlus::dashboardPage(
                                ###### menuitem ######
                                menuItem("Home", tabName = "Home", icon = icon("home")),
                                menuItem("Forecasting", tabName = "Forecasting", icon = icon("chart-line")),
-                               menuItem("Your Location", tabName = "Users", icon = icon("map-location-dot")),
+                               # menuItem("Your Location", tabName = "Users", icon = icon("map-location-dot")),
                                menuItem("About", tabName = "About", icon = icon("circle-info"))
                              )
   ),
@@ -300,15 +300,15 @@ ui <- shinydashboardPlus::dashboardPage(
                      )
               )
       ),
-      #### Users ####
-      tabItem(
-        tabName = "Users",
-        fluidPage(
-          leafletOutput("mymap"),
-          br(),
-          "** Your location don't get stored, just for fun **"
-        )
-      ),
+      # #### Users ####
+      # tabItem(
+      #   tabName = "Users",
+      #   fluidPage(
+      #     leafletOutput("mymap"),
+      #     br(),
+      #     "** Your location don't get stored, just for fun **"
+      #   )
+      # ),
       
       # About Section ####
       tabItem(tabName = "About",
@@ -332,7 +332,7 @@ ui <- shinydashboardPlus::dashboardPage(
                       tags$ul(class = "tick-list",
                               tags$li("Model summary added for fitted models in forecasting tab"),
                               tags$li("Switching between forecast plot and model summary is now possible"),
-                              tags$li("Know your IP location added")
+                              # tags$li("Know your IP location added")
                       )
                   ),
                   box(title = "2024-07-11", collapsible = TRUE, status = "success", solidHeader = TRUE, 
