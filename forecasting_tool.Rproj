@@ -12,6 +12,6 @@ Encoding: UTF-8
 RnwWeave: Sweave
 LaTeX: pdfLaTeX
 
-PythonType: conda
-PythonVersion: 3.9.18
-PythonPath: C:/Users/soumy/AppData/Local/r-miniconda/envs/r-reticulate/python.exe
+PythonType: system
+PythonVersion: 3.12.4
+PythonPath: C:/Users/soumy/AppData/Local/Programs/Python/Python312/python.exe

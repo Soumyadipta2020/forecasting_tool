@@ -1,6 +1,6 @@
 #### UI ####
 ui <- shinydashboardPlus::dashboardPage(
-  title = "AI Forecasting Tool",
+  title = "AI Forecasting App",
   preloader = list(),
   skin = "blue",
   # options = list(sidebarExpandOnHover = TRUE),

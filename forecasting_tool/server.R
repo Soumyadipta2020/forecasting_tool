@@ -7,7 +7,7 @@ server <- function(input, output, session) {
       # "FT"
       tags$img(src='brand_logo.png', height = '35', width ='35')
     } else {
-      HTML(paste("<span style='font-size: 16px;'>", "Forecasting Tool", "</span>",
+      HTML(paste("<span style='font-size: 16px;'>", "AI Forecasting App", "</span>",
                        "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
                        "&nbsp; v.0.03.2 &nbsp;", "</span>"))
     }
