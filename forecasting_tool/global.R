@@ -53,11 +53,11 @@ jscode_1 <- '
     '
 
 # API ####
-openai_api_key <<- "sk-proj-3UmC10TAyJ8CULw8hvQDT3BlbkFJKm2pe6yFDBDkNOYPr0Yg"
-gemini_api_key <<- "AIzaSyBc8XOg3B7sY7n5VDsy5SgIT8baqsbFdGc"
+openai_api_key <<- ""
+gemini_api_key <<- ""
 claude_api_key <<-
-  "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"
-hugging_api_key <<- "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"
+  ""
+hugging_api_key <<- ""
 
 #### data edit ####
 data_edit <<- data.frame(row = NA, col = NA, value = NA)
