@@ -18,7 +18,7 @@ ui <- shinydashboardPlus::dashboardPage(
     dropdownMenu(type = "tasks", badgeStatus = "warning",
                  headerText = "Upcoming/Ongoing Features -",
                  messageItem(from = NULL,
-                             message = "Summary Statistics of uploaded data",
+                             message = "New forecasting models addition",
                              icon = icon("spinner")
                  )
     ),
@@ -259,9 +259,9 @@ ui <- shinydashboardPlus::dashboardPage(
                                         numericInput("seasonal_period", "Seasonal Period", value = 12, min = 1)
                                       ),
                                       selectInput("model", "Select Time Series Model",
-                                                  choices = c("ARIMA", "SARIMA", "ARCH", "GARCH",
-                                                              # "LSTM", 
-                                                              "AutoML", "ETS"))
+                                                  choices = c("ARIMA", "SARIMA", "GRNN", "ARCH", 
+                                                              "GARCH", "Neural Network", # "LSTM", 
+                                                              "AutoML", "ETS", "Prophet"))
                                     ),
                                     conditionalPanel(
                                       condition = "input.data_type == 'Non-Time Series'",
@@ -327,6 +327,12 @@ ui <- shinydashboardPlus::dashboardPage(
                 ),
                 h1("Changelog"),
                 fluidRow(
+                  box(title = "2024-07-29", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                      width = 12, collapsed = TRUE,
+                      tags$ul(class = "tick-list",
+                              tags$li("Prophet, GRNN, Neural Network forecasting model added")
+                      )
+                  ),
                   box(title = "2024-07-13", collapsible = TRUE, status = "success", solidHeader = TRUE, 
                       width = 12, collapsed = TRUE,
                       tags$ul(class = "tick-list",

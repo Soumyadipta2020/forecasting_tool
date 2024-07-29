@@ -419,12 +419,27 @@ server <- function(input, output, session) {
                         },
                         # "LSTM" = lstm_forecast(tsData(), input$horizon),
                         "AutoML" = automl_forecast(tsData(), input$horizon),
-                        "ETS" = forecast::forecast(tsData(), h = input$horizon)
+                        "ETS" = forecast::forecast(tsData(), h = input$horizon),
+                        "GRNN" = grnn_forecasting(tsData(), h = input$horizon),
+                        "Neural Network" = forecast::nnetar(tsData(), lambda="auto"),
+                        "Prophet" = prophet(data.frame(ds = c(1:length(tsData())), y = tsData())) 
+                                            # uncertainty.samples = 10,
+                                            # mcmc.samples = 10)
         )
         
         if (!is.null(model)) {
-          forecast_values <- forecast(model, h = input$horizon)
-          forecast_values <- c(fitted(model),forecast_values$mean)
+          if(input$model == "Prophet"){
+            future <- make_future_dataframe(model, periods = input$horizon)
+            forecast_values <- (predict(model, future))$yhat
+          } else if (input$model == "GRNN") {
+            forecast_values <- c(tsData(), model$prediction)
+          } else if (input$model == "Neural Network") {
+            forecast_values <- forecast(model, h = input$horizon)
+            forecast_values <- c(tsData(), forecast_values$mean)
+          } else {
+            forecast_values <- forecast(model, h = input$horizon)
+            forecast_values <- c(fitted(model),forecast_values$mean)
+          }
         }
       } 
       
