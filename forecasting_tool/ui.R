@@ -192,10 +192,14 @@ ui <- shinydashboardPlus::dashboardPage(
                          splitLayout(downloadButton("file_template_download", "Download template file"),
                                      actionButton("upload_data", "Upload data")
                          ),
+                         splitLayout("",
+                                     p("*Please click after editing (if needed) the table below*", 
+                                       style = "color:red")
+                         ),
                          br(), br(),
                          uiOutput("info_data"),
                          fluidRow(
-                           box(title = "Uploaded Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
+                           box(title = "Edit Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 
                                width = 12, collapsed = TRUE,
                                dataTableOutput("uploaded_data")
                            )
