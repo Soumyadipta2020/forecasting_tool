@@ -256,3 +256,28 @@ automl_forecast <- function(ts_data, horizon) {
   return(forecast_values)
 }
 
+#### ARFIMA FOrecast ####
+arfima_forecast <- function(x, h){
+  {
+    arfima_fit <- auto.arima(x, seasonal = FALSE, stepwise = FALSE, 
+                             approximation = FALSE, allowdrift = FALSE)
+    
+    # Extract AR and MA orders from the fitted model
+    ar_order <- arimaorder(arfima_fit)[1]  # AR order
+    ma_order <- arimaorder(arfima_fit)[3]  # MA order
+    
+    # Create dynamic ARFIMA specification
+    spec <- arfimaspec(mean.model = list(armaOrder = c(ar_order, ma_order),
+                                         include.mean = TRUE, arfima = TRUE))
+    
+    # Fit the model using the dynamic specification
+    garch_fit <- arfimafit(spec = spec, data = x)
+    
+    # Generate forecasts directly using arfimaforecast
+    forecast_values <- arfimaforecast(garch_fit, n.ahead = h)
+    
+    # Extract the forecasted values as a vector
+    forecast_vector <- as.vector(forecast_values@forecast$seriesFor)
+    return(forecast_vector)
+  }
+}

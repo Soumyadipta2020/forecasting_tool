@@ -407,6 +407,7 @@ server <- function(input, output, session) {
         model <- switch(input$model,
                         "ARIMA" = auto.arima(tsData()),
                         "SARIMA" = auto.arima(tsData(), seasonal = TRUE),
+                        "ARFIMA" = arfima_forecast(tsData(), input$horizon),
                         "ARCH" = {
                           spec <- ugarchspec(variance.model = list(model = "sGARCH"))
                           fit <- ugarchfit(spec, data = tsData())
@@ -422,6 +423,9 @@ server <- function(input, output, session) {
                         "ETS" = forecast::forecast(tsData(), h = input$horizon),
                         "GRNN" = grnn_forecasting(tsData(), h = input$horizon),
                         "Neural Network" = forecast::nnetar(tsData(), lambda="auto"),
+                        "State Space ARIMA" = smooth::auto.ssarima(tsData(), h = input$horizon, 
+                                                                   initial = "backcasting", 
+                                                                   ic = "BICc"),
                         "Prophet" = prophet(data.frame(ds = c(1:length(tsData())), y = tsData())) 
                                             # uncertainty.samples = 10,
                                             # mcmc.samples = 10)
@@ -436,6 +440,20 @@ server <- function(input, output, session) {
           } else if (input$model == "Neural Network") {
             forecast_values <- forecast(model, h = input$horizon)
             forecast_values <- c(tsData(), forecast_values$mean)
+          } else if (input$model == "State Space ARIMA") {
+            forecast_values <- c(model$y, model$forecast)
+          } else if (input$model == "ARFIMA") {
+            
+            result <- try({
+              df <- model
+            }, silent = TRUE)
+            
+            if (inherits(result, "try-error")) {
+              forecast_values <- c(tsData(), rep(0, times = input$horizon))
+            } else {
+              forecast_values <- c(tsData(), model)
+            }
+            
           } else {
             forecast_values <- forecast(model, h = input$horizon)
             forecast_values <- c(fitted(model),forecast_values$mean)
