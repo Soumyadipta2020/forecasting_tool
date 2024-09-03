@@ -15,11 +15,11 @@ ui <- shinydashboardPlus::dashboardPage(
     title = uiOutput("header_ui"),
     titleWidth = 200, 
     ##### Dropdown menu for messages #####
-    dropdownMenu(type = "tasks", badgeStatus = "warning",
+    dropdownMenu(type = "tasks", badgeStatus = "success",
                  headerText = "Upcoming/Ongoing Features -",
-                 messageItem(from = NULL,
-                             message = "New forecasting models addition",
-                             icon = icon("spinner")
+                 messageItem(from = 'Soumyadipta Das',
+                             message = "Model Completed!",
+                             icon = icon("flag-checkered")
                  )
     ),
     userOutput("user"),
@@ -43,40 +43,11 @@ ui <- shinydashboardPlus::dashboardPage(
     useWaiter(),
     shinyjs::useShinyjs(),
     use_copy(),
-    # div(
-    #   id = "myModal",
-    #   shiny::modalDialog(
-    #     title = "Reload RShiny",
-    #     "Press the reload button if you want to reload RShiny -",
-    #     fade = TRUE,
-    #     footer = tagList(
-    #       modalButton("Cancel", icon = icon("circle-xmark")),
-    #       actionButton("reload", "Reload", icon = icon("arrows-rotate"))
-    #     ),
-    #     easyClose = FALSE
-    #   )
-    # ),
     use_theme(dashboard_body_theme),
-    # tags$head(tags$style(HTML(
-    #   '.myClass { 
-    #     font-size: 16px;
-    #     line-height: 50px;
-    #     text-align: centre;
-    #     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    #     padding: 0 15px;
-    #     overflow: hidden;
-    #     color: white;
-    #   }
-    # '))),
-    # tags$script(HTML('
-    #   $(document).ready(function() {
-    #     $("header").find("nav").append(\'<span class="myClass" style="font-size: 16px;"> Forecasting Tool </span> <span class="version-badge" style="border-radius: 10px; font-size: small; background-color: #545454; color: white;"> &nbsp; v.0.02 &nbsp;  </span> \');
-    #   })
-    #  ')),
     tags$script(HTML("$('body').addClass('fixed');")),
-    tags$head(
-      tags$script(src="getIP.js")
-    ),
+    # tags$head(
+    #   tags$script(src="getIP.js")
+    # ),
     tags$head(tags$style(HTML('
       
         .dropdown-menu {
@@ -321,6 +292,9 @@ ui <- shinydashboardPlus::dashboardPage(
               fluidPage(
                 h1(tags$img(src='brand_logo.png', height = '50', width ='50'), 
                    ("About the App")),
+                tagList(HTML(paste0("<b>","Github Repository: ","</b>")), a("Github", 
+                                                href="https://github.com/Soumyadipta2020/forecasting_tool")),
+                br(), br(),
                 "The AI Forecasting Tool, based on the R Shiny architecture, provides a comprehensive and user-friendly platform for all your data analysis needs. R Shiny, a web application framework for R, allows for the creation of interactive and visually appealing applications without requiring extensive web development skills. Leveraging this powerful framework, users can seamlessly upload their data, make necessary edits, and visualize the information in an intuitive manner. The tool offers a variety of models to choose from, allowing for tailored predictions and forecasts to suit specific requirements. Once the forecasting process is complete, users can easily extract the results for further use. Moreover, the tool includes an interactive AI component that enables discussions on multiple topics, providing valuable insights and guidance throughout the analysis process. This combination of advanced functionality, ease of use, and interactive features makes the AI Forecasting Tool an essential asset for data-driven decision-making.", 
                 h4("The top features are as follows -"),
                 tags$ul(
@@ -331,8 +305,14 @@ ui <- shinydashboardPlus::dashboardPage(
                   tags$li("Extract the results"),
                   tags$li("Discuss multiple topics with AI")
                 ),
-                h1("Changelog"),
+                h1("Latest Changelogs"),
                 fluidRow(
+                  box(title = "2024-09-03", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                      width = 12, collapsed = TRUE,
+                      tags$ul(class = "tick-list",
+                              tags$li("Bug fixes & Adjustments")
+                      )
+                  ),
                   box(title = "2024-08-12", collapsible = TRUE, status = "success", solidHeader = TRUE, 
                       width = 12, collapsed = TRUE,
                       tags$ul(class = "tick-list",

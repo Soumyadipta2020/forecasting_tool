@@ -61,7 +61,7 @@ server <- function(input, output, session) {
           width = 6,
           socialButton(
             href = "https://www.linkedin.com/in/soumyadipta-das/",
-            icon = icon("linkedin-in")
+            icon = icon("linkedin-in", lib = "font-awesome")
           )
         ),
         dashboardUserItem(
@@ -75,7 +75,7 @@ server <- function(input, output, session) {
           width = 6,
           socialButton(
             href = "https://github.com/Soumyadipta2020/",
-            icon = icon("square-github")
+            icon = icon("square-github", lib = "font-awesome")
           )
         )
       )
@@ -913,17 +913,17 @@ server <- function(input, output, session) {
     updateTextInput(session, "prompt", value = "")
   })
   
-  #### User Location ####
-  IP <- reactive({ input$getIP })
-  
-  output$mymap <- renderLeaflet({
-    temp <- IP()$loc
-    temp <- as.numeric(unlist(str_split(temp,",")))
-    points <- data.frame(lat = temp[1], lon = temp[2])
-    leaflet() %>%
-      addProviderTiles(providers$Stadia.StamenTonerLite,
-                       options = providerTileOptions(noWrap = TRUE)
-      ) %>%
-      addMarkers(data = points)
-  })
+  # #### User Location ####
+  # IP <- reactive({ input$getIP })
+  # 
+  # output$mymap <- renderLeaflet({
+  #   temp <- IP()$loc
+  #   temp <- as.numeric(unlist(str_split(temp,",")))
+  #   points <- data.frame(lat = temp[1], lon = temp[2])
+  #   leaflet() %>%
+  #     addProviderTiles(providers$Stadia.StamenTonerLite,
+  #                      options = providerTileOptions(noWrap = TRUE)
+  #     ) %>%
+  #     addMarkers(data = points)
+  # })
 }

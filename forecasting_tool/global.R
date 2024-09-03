@@ -11,8 +11,6 @@ library(gptstudio)
 # install.packages("remotes")
 # remotes::install_github("deepanshu88/shinyCopy2clipboard")
 library(shinyCopy2clipboard)
-# remotes::install_github("mlverse/tft")
-# library(tft)
 library(prophet)
 library(sass)
 library(markdown)
@@ -45,6 +43,7 @@ library(tidyr)
 library(shinyWidgets)
 library(leaflet)
 library(tsfgrnn)
+library(fontawesome)
 
 source("helper.R")
 
@@ -66,14 +65,6 @@ hugging_api_key <<- ""
 #### data edit ####
 data_edit <<- data.frame(row = NA, col = NA, value = NA)
 
-#### Theme ####
-# dashboard_header_theme <- create_theme(
-#   theme = "default",
-#   adminlte_color(
-#     light_blue = "#E7FF6E"
-#   )
-# )
-
 #### dashboard sidebar theme ####
 dashboard_sidebar_theme <- create_theme( 
   adminlte_sidebar(
@@ -88,7 +79,7 @@ dashboard_body_theme <- create_theme(
   bs_vars_button(
     default_color = "#FFF",
     default_bg = "#0066cc",
-    # default_border = "#112446",
+    # default_border = "white",
     border_radius_base = "10px"
   ),
   bs_vars_tabs(
