@@ -385,10 +385,11 @@ ui <- shinydashboardPlus::dashboardPage(
             "model_gen",
             "AI Model",
             choices = c(
+              "Meta-Llama-3.1",
               "Meta-Llama-3",
               # "gpt-3.5-turbo",
               "gemini-pro",
-              "microsoft-Phi-3-mini",
+              "Phi-3.5-mini",
               # "claude-2.1",
               # "claude-instant",
               "google-gemma-7b-it",
@@ -396,11 +397,11 @@ ui <- shinydashboardPlus::dashboardPage(
               "Mistral-v0.3",
               "Yi-1.5"
             ),
-            selected = "Meta-Llama-3-8B-Instruct"
+            selected = "Meta-Llama-3.1"
           ), 
           sliderInput(
             "temperature",
-            "Temperature (gemini & gpt only)",
+            "Temperature (gemini, llama-3.1 & Phi only)",
             min = 0,
             max = 1,
             value = 0.5, 

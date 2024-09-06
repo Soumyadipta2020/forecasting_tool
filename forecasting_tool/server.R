@@ -443,17 +443,7 @@ server <- function(input, output, session) {
           } else if (input$model == "State Space ARIMA") {
             forecast_values <- c(model$y, model$forecast)
           } else if (input$model == "ARFIMA") {
-            
-            result <- try({
-              df <- model
-            }, silent = TRUE)
-            
-            if (inherits(result, "try-error")) {
-              forecast_values <- c(tsData(), rep(0, times = input$horizon))
-            } else {
               forecast_values <- c(tsData(), model)
-            }
-            
           } else {
             forecast_values <- forecast(model, h = input$horizon)
             forecast_values <- c(fitted(model),forecast_values$mean)
@@ -826,14 +816,15 @@ server <- function(input, output, session) {
             token = hugging_api_key,
             max_new_tokens = 1000
           )[[1]][[1]]
-      } else if (input$model_gen == "microsoft-Phi-3-mini") {
+      } else if (input$model_gen == "Phi-3.5-mini") {
         response <-
-          create_completion_huggingface(
-            model = "microsoft/Phi-3-mini-4k-instruct",
+          chat_nvidia(
+            prompt,
             history = rv$chat_history,
-            prompt = prompt,
-            token = hugging_api_key
-          )[[1]][[1]]
+            temp = input$temperature,
+            api_key = nv_api_key,
+            model_llm = "microsoft/phi-3.5-mini-instruct"
+          )
       } else if (input$model_gen == "Yi-1.5") {
         response <-
           create_completion_huggingface(
@@ -843,6 +834,15 @@ server <- function(input, output, session) {
             token = hugging_api_key,
             max_new_tokens = 1000
           )[[1]][[1]]
+      } else if (input$model_gen == "Meta-Llama-3.1") {
+        response <-
+          chat_nvidia(
+            prompt,
+            history = rv$chat_history,
+            temp = input$temperature,
+            api_key = nv_api_key,
+            model_llm = "meta/llama-3.1-405b-instruct"
+          )
       }
     
     
