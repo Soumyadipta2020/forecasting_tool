@@ -4,6 +4,7 @@ ui <- shinydashboardPlus::dashboardPage(
   preloader = list(),
   skin = "blue",
   # options = list(sidebarExpandOnHover = TRUE),
+  
   #### dashboard header ####
   header = dashboardHeader(
     leftUi = tagList(
@@ -25,6 +26,7 @@ ui <- shinydashboardPlus::dashboardPage(
     userOutput("user"),
     controlbarIcon = shiny::icon("hire-a-helper")
   ),
+  
   #### Sidebar ####
   sidebar = dashboardSidebar(minified = TRUE, #collapsed = TRUE,
                              use_theme(dashboard_sidebar_theme),
@@ -39,6 +41,8 @@ ui <- shinydashboardPlus::dashboardPage(
                                menuItem("About", tabName = "About", icon = icon("circle-info"))
                              )
   ),
+  
+  # Dashboard Body ####
   body = dashboardBody(
     useWaiter(),
     shinyjs::useShinyjs(),
