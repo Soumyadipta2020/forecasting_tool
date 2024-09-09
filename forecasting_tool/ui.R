@@ -162,10 +162,25 @@ ui <- shinydashboardPlus::dashboardPage(
                      tabPanel(
                        "Data", icon = icon("database"),
                        fluidPage(
-                         fileInput("file", list(icon("file-csv"),"Upload Your File (.csv supported)"), accept = ".csv"),
-                         shinyFeedback::useShinyFeedback(),
+                         selectInput('data_source', 'Select Data Source', 
+                                     c('Upload', 'Sample'), selected = 'Upload'),
+                         conditionalPanel(
+                           condition = "input.data_source == 'Upload'",
+                           fileInput("file", list(icon("file-csv"),"Upload Your File (.csv supported)"), accept = ".csv"),
+                           shinyFeedback::useShinyFeedback()
+                           ),
+                         conditionalPanel(
+                           condition = "input.data_source == 'Sample'",
+                           selectInput('sample_data', 'Select Sample Data', 
+                                       choices = mongo_list('timeseries', mongo_url)), 
+                           actionButton('load_mongo', 'Load Data', 
+                                        icon = icon('cloud-arrow-up')),
+                           br(), br()
+                         ),
+                         
                          splitLayout(downloadButton("file_template_download", "Download template file"),
-                                     actionButton("upload_data", "Upload data")
+                                     actionButton("upload_data", "Upload data", 
+                                                  icon = icon('upload'))
                          ),
                          splitLayout("",
                                      p("*Please click after editing (if needed) the table below*", 
@@ -311,6 +326,12 @@ ui <- shinydashboardPlus::dashboardPage(
                 ),
                 h1("Latest Changelogs"),
                 fluidRow(
+                  box(title = "2024-09-09", collapsible = TRUE, status = "success", solidHeader = TRUE, 
+                      width = 12, collapsed = TRUE,
+                      tags$ul(class = "tick-list",
+                              tags$li("Sample data added")
+                      )
+                  ),
                   box(title = "2024-09-03", collapsible = TRUE, status = "success", solidHeader = TRUE, 
                       width = 12, collapsed = TRUE,
                       tags$ul(class = "tick-list",

@@ -9,7 +9,7 @@ server <- function(input, output, session) {
     } else {
       HTML(paste("<span style='font-size: 16px;'>", "AI Forecasting App", "</span>",
                        "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
-                       "&nbsp; v.0.03.2 &nbsp;", "</span>"))
+                       "&nbsp; v.0.03.3 &nbsp;", "</span>"))
     }
   })
   
@@ -92,9 +92,9 @@ server <- function(input, output, session) {
       write.csv(temp, file, row.names = FALSE)
     }
   )
-  #### data upload ####
-  data_old <- reactive({
-    withProgress(message = "Loading....", {
+  #### Data upload ####
+  data_primary <- reactive({
+    if(input$data_source == 'Upload'){
       req(input$file)
       df <- read.csv(input$file$datapath)
       
@@ -104,32 +104,42 @@ server <- function(input, output, session) {
       if(!col_type_check){
         shinyFeedback::hideFeedback("file")
         shinyFeedback::feedbackDanger("file", !col_type_check, "Invalid file format. Please download the template.")
-        req(col_type_check)
-      } else{
-        shinyFeedback::hideFeedback("file")
-        shinyFeedback::feedbackSuccess("file", col_type_check, "Successfully Uploaded.")
-        req(col_type_check)
+      } 
+      req(col_type_check)
+      shinyFeedback::hideFeedback("file")
+      shinyFeedback::feedbackSuccess("file", col_type_check, "Successfully Uploaded.")
+    } else if(input$data_source == 'Sample'){
+      req(input$load_mongo)
+      df <- mongo_read(input$sample_data, 'timeseries', mongo_url)
+    }
+    
+    return(df)
+  })
+  
+  #### Data edit ####
+  data_old <- reactive({
+    withProgress(message = "Loading....", {
+      df <- data_primary()
+      
+      #### render data table #####
+      output$uploaded_data <- renderDT(df, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
         
-        #### render data table #####
-        output$uploaded_data <- renderDT(df, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+      df1 <<- df
         
-        df1 <<- df
-        
-        #### data edit step note #####
-        observeEvent(input$uploaded_data_cell_edit, {
-          info = input$uploaded_data_cell_edit
-          str(info)
-          i = info$row
-          j = info$col + 1
-          v = info$value
-          df1[i, j] <<- v
-          output$uploaded_data <- renderDT(df1, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
-          temp <- data.frame(row = i, col = j, value = v)
-          data_edit <<- rbind(data_edit, temp)
-        })
-        
-        return(df)
-      }
+      #### data edit step note #####
+      observeEvent(input$uploaded_data_cell_edit, {
+        info = input$uploaded_data_cell_edit
+        str(info)
+        i = info$row
+        j = info$col + 1
+        v = info$value
+        df1[i, j] <<- v
+        output$uploaded_data <- renderDT(df1, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+        temp <- data.frame(row = i, col = j, value = v)
+        data_edit <<- rbind(data_edit, temp)
+      })
+      
+      return(df)
     })
   })
   
