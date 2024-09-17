@@ -28,7 +28,11 @@ mongo_append <- function(df, table, db, url){
   
   # Verify the data was inserted
   retrieved_data <- mongo_connection$find()
-  print(head(retrieved_data))
+  if(sum(1*(dim(df) == dim(retrieved_data))) == 2){
+    print('Success')
+  } else if(sum(1*(dim(df) == dim(retrieved_data))) != 2){
+    print('Failure')
+  }
   
   # Disconnect from MongoDB
   mongo_connection$disconnect()
@@ -53,7 +57,11 @@ mongo_create <- function(df, table, db, url){
   
   # Verify the data was inserted
   retrieved_data <- mongo_connection$find()
-  print(head(retrieved_data))
+  if(sum(1*(dim(df) == dim(retrieved_data))) == 2){
+    print('Success')
+  } else if(sum(1*(dim(df) == dim(retrieved_data))) != 2){
+    print('Failure')
+  }
   
   # Disconnect from MongoDB
   mongo_connection$disconnect()
