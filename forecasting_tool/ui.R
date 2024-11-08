@@ -186,7 +186,8 @@ ui <- shinydashboardPlus::dashboardPage(
                                      p("*Please click after editing (if needed) the table below*", 
                                        style = "color:red")
                          ),
-                         br(), br(),
+                         br(), #br(),
+                         uiOutput("time_var"),
                          uiOutput("info_data"),
                          fluidRow(
                            box(title = "Edit Data", collapsible = TRUE, status = "primary", solidHeader = TRUE, 

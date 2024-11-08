@@ -121,6 +121,11 @@ server <- function(input, output, session) {
     withProgress(message = "Loading....", {
       df <- data_primary()
       
+      output$info_data <- renderUI({
+        selectInput("time_variable", "Select Time Variable", choices = colnames(df), 
+                    selected = colnames(df)[1])
+      })
+      
       # Identify numeric columns in the Dataframe
       numeric_columns <- names(df)[sapply(df, is.numeric)]
       
@@ -140,7 +145,7 @@ server <- function(input, output, session) {
       }
       
       #### render data table #####
-      output$uploaded_data <- renderDataTable(dt)
+      output$uploaded_data <- renderDT(dt)
         
       df1 <<- df
         
@@ -169,7 +174,7 @@ server <- function(input, output, session) {
         }
         
         #### render data table #####
-        output$uploaded_data <- renderDataTable(dt)
+        output$uploaded_data <- renderDT(dt)
         
         temp <- data.frame(row = i, col = j, value = v)
         data_edit <<- rbind(data_edit, temp)
@@ -212,8 +217,10 @@ server <- function(input, output, session) {
   })
   
   #### main data ####
-  data <- reactive({
+  data <- eventReactive(input$upload_data, {
+    req(input$time_variable)
     df <- data_old()
+    df <- df[order(df[[input$time_variable]]),]
     req(input$upload_data != 0)
     ##### modification of data as per edit #####
     data_edit_1 <- data_edit %>% tidyr::drop_na()
