@@ -121,7 +121,7 @@ server <- function(input, output, session) {
     withProgress(message = "Loading....", {
       df <- data_primary()
       
-      output$info_data <- renderUI({
+      output$time_var <- renderUI({
         selectInput("time_variable", "Select Time Variable", choices = colnames(df), 
                     selected = colnames(df)[1])
       })
