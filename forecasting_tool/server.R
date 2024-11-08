@@ -121,8 +121,26 @@ server <- function(input, output, session) {
     withProgress(message = "Loading....", {
       df <- data_primary()
       
+      # Identify numeric columns in the Dataframe
+      numeric_columns <- names(df)[sapply(df, is.numeric)]
+      
+      # Initialize datatable
+      dt <- datatable(df, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+      # Apply conditional formatting to each numeric column
+      for (col_name in numeric_columns) {
+        brks <- seq(min(df[[col_name]], na.rm = TRUE), 
+                    max(df[[col_name]], na.rm = TRUE), 
+                    length.out = 10)
+        clrs <- colorRampPalette(c("#40a2ed", "#40edae"))(length(brks) + 1)
+        dt <- dt %>%
+          formatStyle(
+            columns = col_name,
+            backgroundColor = styleInterval(brks, clrs)
+          )
+      }
+      
       #### render data table #####
-      output$uploaded_data <- renderDT(df, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+      output$uploaded_data <- renderDataTable(dt)
         
       df1 <<- df
         
@@ -134,7 +152,25 @@ server <- function(input, output, session) {
         j = info$col + 1
         v = info$value
         df1[i, j] <<- v
-        output$uploaded_data <- renderDT(df1, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+        
+        # Initialize datatable
+        dt <- datatable(df1, editable = TRUE, filter = "top", selection = 'none', rownames = FALSE)
+        # Apply conditional formatting to each numeric column
+        for (col_name in numeric_columns) {
+          brks <- seq(min(df1[[col_name]], na.rm = TRUE), 
+                      max(df1[[col_name]], na.rm = TRUE), 
+                      length.out = 10)
+          clrs <- colorRampPalette(c("#40a2ed", "#40edae"))(length(brks) + 1)
+          dt <- dt %>%
+            formatStyle(
+              columns = col_name,
+              backgroundColor = styleInterval(brks, clrs)
+            )
+        }
+        
+        #### render data table #####
+        output$uploaded_data <- renderDataTable(dt)
+        
         temp <- data.frame(row = i, col = j, value = v)
         data_edit <<- rbind(data_edit, temp)
       })

@@ -45,6 +45,7 @@ library(shinyWidgets)
 library(leaflet)
 library(tsfgrnn)
 library(fontawesome)
+library(formattable)
 
 # Helpler scripts ####
 source("helper.R")
