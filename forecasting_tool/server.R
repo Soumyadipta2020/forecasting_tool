@@ -860,10 +860,10 @@ server <- function(input, output, session) {
             token = hugging_api_key,
             max_new_tokens = 10000
           )[[1]][[1]]
-      } else if (input$model_gen == "Meta-Llama-3") {
+      } else if (input$model_gen == "Meta-Llama-3.2") {
         response <-
           create_completion_huggingface(
-            model = "meta-llama/Meta-Llama-3-8B-Instruct",
+            model = "meta-llama/Llama-3.2-3B-Instruct",
             history = rv$chat_history,
             prompt = prompt,
             token = hugging_api_key,
@@ -871,13 +871,13 @@ server <- function(input, output, session) {
           )[[1]][[1]]
       } else if (input$model_gen == "Phi-3.5-mini") {
         response <-
-          chat_nvidia(
-            prompt,
+          create_completion_huggingface(
+            model = "microsoft/Phi-3.5-mini-instruct",
             history = rv$chat_history,
-            temp = input$temperature,
-            api_key = nv_api_key,
-            model_llm = "microsoft/phi-3.5-mini-instruct"
-          )
+            prompt = prompt,
+            token = hugging_api_key,
+            max_new_tokens = 1000
+          )[[1]][[1]]
       } else if (input$model_gen == "Yi-1.5") {
         response <-
           create_completion_huggingface(
@@ -887,18 +887,16 @@ server <- function(input, output, session) {
             token = hugging_api_key,
             max_new_tokens = 1000
           )[[1]][[1]]
-      } else if (input$model_gen == "Meta-Llama-3.1") {
+      } else if (input$model_gen == "HuggingFaceTB") {
         response <-
-          chat_nvidia(
-            prompt,
+          create_completion_huggingface(
+            model = "HuggingFaceTB/SmolLM2-1.7B-Instruct",
             history = rv$chat_history,
-            temp = input$temperature,
-            api_key = nv_api_key,
-            model_llm = "meta/llama-3.1-405b-instruct"
-          )
+            prompt = prompt,
+            token = hugging_api_key,
+            max_new_tokens = 1000
+          )[[1]][[1]]
       }
-    
-    
     
     
     response <- gsub(" \nAssistant:\n", "", response)
