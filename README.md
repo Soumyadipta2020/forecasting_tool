@@ -1,4 +1,4 @@
-# <img src="https://github.com/Soumyadipta2020/forecasting_tool/blob/main/forecasting_tool/www/brand_logo.png" width="40"> [AI Forecating Tool](https://soumyadipta-das-stat.shinyapps.io/forecasting_tool_new/)
+# <img src="https://github.com/Soumyadipta2020/forecasting_tool/blob/main/forecasting_tool/www/brand_logo.png" width="40"> [AI Forecating Tool ✨](https://soumyadipta-das-stat.shinyapps.io/forecasting_tool_new/)
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/Soumyadipta2020/forecasting_tool?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/Soumyadipta2020/forecasting_tool?style=social)
@@ -14,3 +14,42 @@ The top features are as follows -
 * Predict and forecast
 * Extract the results
 * Discuss multiple topics with AI
+
+## 🚀 Getting Started
+
+This repository contains an AI-based Forecasting Application built with RShiny. The app demonstrates how to leverage AI techniques to perform accurate and interactive time series forecasting. Designed to be intuitive and user-friendly, this RShiny app serves as a powerful tool for exploring predictive analytics and making data-driven decisions.
+
+### ⚙️ Prerequisites
+
+To run these examples, you'll need:
+
+ - R (version 3.5 or above recommended)
+ - Shiny package installed
+ - Intermediate knowledge of R programming
+ - Familiarity with LLM
+
+### 📂 Format
+
+The code divied into multiple parts. Here's a quick overview of the files -
+ - *ui.R* : Contains the UI section of the app
+ - *server.R* : Contains all the calculations
+ - *global.R* : contiains the app environment details
+ - *functions.R* : Required functions are defined here
+ - *helper.R* : All the LLM related functions defined here
+ - *mongodb_helper.R* : All the functions defined hhere to read/write to Mongo DB
+
+## 💡 Contributing
+We welcome contributions! If you have additional sample codes or improvements, please:
+
+ - Fork this repository.
+ - Create a feature branch:
+```bash
+git checkout -b feature/your-feature-name
+```
+ - Commit your changes and push the branch:
+```bash
+git push origin feature/your-feature-name
+```
+ - Open a Pull Request.
+
+Make sure your code follows the repository's style and is well-documented.
