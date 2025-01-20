@@ -27,17 +27,17 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
 
-    # Install R package dependencies
-    - name: Install R package dependencies
+    # Install devtools and dependencies
+    - name: Install devtools and dependencies
       run: |
-        install.packages('devtools')
+        install.packages('devtools', repos = 'https://cloud.r-project.org/')
         devtools::install_deps(dependencies = TRUE)
       shell: Rscript {0}
 
-    # Run tests
+    # Run Shiny tests
     - name: Run Shiny tests
       run: |
-        if (!requireNamespace('shinytest2', quietly = TRUE)) install.packages('shinytest2')
+        if (!requireNamespace('shinytest2', quietly = TRUE)) install.packages('shinytest2', repos = 'https://cloud.r-project.org/')
         shinytest2::test_app()
       shell: Rscript {0}
 
@@ -47,4 +47,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: shiny-test-results
-        path: tests/testthat/*.Rout
+        path: .github/workflows/logs/*.Rout
