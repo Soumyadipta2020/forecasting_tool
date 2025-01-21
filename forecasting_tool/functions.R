@@ -8,6 +8,7 @@ getmode <- function(v, na = TRUE) {
 }
 
 #### Forecasting functions ####
+
 #### LSTM ####
 lstm_forecast <- function(ts_data, horizon) {
   library(keras)
