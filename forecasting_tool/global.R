@@ -1,5 +1,5 @@
 # remove warning ####
-rm(list=ls())
+rm(list = ls())
 
 #### Library ####
 library(shiny)
@@ -64,4 +64,3 @@ jscode_1 <- '
 
 #### data edit ####
 data_edit <<- data.frame(row = NA, col = NA, value = NA)
-
