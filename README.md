@@ -53,3 +53,5 @@ git push origin feature/your-feature-name
  - Open a Pull Request.
 
 Make sure your code follows the repository's style and is well-documented.
+
+Thanks!
