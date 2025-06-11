@@ -20,28 +20,6 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "tabbox_1", selected = "Data")
   })
 
-
-  # # login ####
-  # if(read.csv("data_reload.csv", header = TRUE)[1,1] == 1){
-  #   showModal(shiny::modalDialog(
-  #     title = "Login to RShiny",
-  #     "Press the login button -",
-  #     fade = TRUE,
-  #     footer = tagList(
-  #       actionButton("login", "LogIn", icon = icon("arrows-rotate"))
-  #     )
-  #   ))
-  # } else if(read.csv("data_reload.csv", header = TRUE)[1,1] == 0){
-  #   write.csv(data.frame(a=1), "data_reload.csv", row.names = FALSE)
-  # }
-  #
-  #
-  # observeEvent(input$login, {
-  #   write.csv(data.frame(a=0), "data_reload.csv", row.names = FALSE)
-  #   session$reload()
-  # })
-
-
   #### Dashboard user window ####
   output$user <- renderUser({
     myDashboardUser(
@@ -89,7 +67,7 @@ server <- function(input, output, session) {
       paste("Sample data", ".csv", sep = "")
     },
     content = function(file) {
-      temp <- read.csv("timeseries demo.csv", header = TRUE)
+      temp <- read.csv("data/timeseries demo.csv", header = TRUE)
       write.csv(temp, file, row.names = FALSE)
     }
   )

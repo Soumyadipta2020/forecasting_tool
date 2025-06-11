@@ -47,12 +47,12 @@ library(tsfgrnn)
 library(fontawesome)
 library(formattable)
 
-# Helpler scripts ####
-source("helper.R")
-source("theme.R")
+# Helper scripts ####
+source("ai_helper/ai_functions.R")
+source("ui_scripts/theme.R")
 source("api.R")
-source("functions.R")
-source("mongodb_helper.R")
+source("server_scripts/functions.R")
+source("server_scripts/mongodb_helper.R")
 
 # js scroll code ####
 jscode_1 <- '

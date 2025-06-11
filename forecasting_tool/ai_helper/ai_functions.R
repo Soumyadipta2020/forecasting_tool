@@ -64,7 +64,7 @@ chat_nvidia <- function(user_message,
 gemini <- function(prompt,
                    temperature = 0.7,
                    api_key,
-                   model = "gemini-pro",
+                   model = "gemini-2.0-flash",
                    max_retries = 3) {
   if (nchar(api_key) < 1) {
     api_key <- readline("Paste your API key here: ")
