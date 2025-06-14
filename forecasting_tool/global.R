@@ -49,8 +49,21 @@ library(formattable)
 
 # Helper scripts ####
 source("ai_helper/ai_functions.R")
+
+# UI scripts ####
 source("ui_scripts/theme.R")
+source("ui_scripts/ui_design.R")
+source("ui_scripts/dashboard_header.R")
+source("ui_scripts/dashboard_sidebar.R")
+source("ui_scripts/home_tab.R")
+source("ui_scripts/forecasting_tab.R")
+source("ui_scripts/about_section.R")
+source("ui_scripts/right_control_bar.R")
+
+# API ####
 source("api.R")
+
+# Server scripts ####
 source("server_scripts/functions.R")
 source("server_scripts/mongodb_helper.R")
 
