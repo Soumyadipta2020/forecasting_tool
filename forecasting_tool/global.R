@@ -61,7 +61,9 @@ source("ui_scripts/about_section.R")
 source("ui_scripts/right_control_bar.R")
 
 # API ####
-source("api.R")
+if(file.exists("api.R") == TRUE){
+  source("api.R")
+}
 
 # Server scripts ####
 source("server_scripts/functions.R")

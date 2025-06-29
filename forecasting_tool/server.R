@@ -9,7 +9,7 @@ server <- function(input, output, session) {
       HTML(paste(
         "<span style='font-size: 16px;'>", "AI Forecasting App", "</span>",
         "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
-        "&nbsp; v.0.03.3 &nbsp;", "</span>"
+        "&nbsp; v.0.03.4 &nbsp;", "</span>"
       ))
     }
   })
