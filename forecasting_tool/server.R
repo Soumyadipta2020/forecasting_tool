@@ -27,7 +27,6 @@ server <- function(input, output, session) {
       image = "self.jpg",
       title = "Consultant II @ EXL",
       subtitle = "Author",
-      # footer = p("The footer", class = "text-center"),
       fluidRow(
         dashboardUserItem(
           width = 6,
@@ -71,6 +70,7 @@ server <- function(input, output, session) {
       write.csv(temp, file, row.names = FALSE)
     }
   )
+  
   #### Data upload ####
   data_primary <- reactive({
     if (input$data_source == "Upload") {
@@ -1035,17 +1035,4 @@ server <- function(input, output, session) {
     updateTextInput(session, "prompt", value = "")
   })
 
-  # #### User Location ####
-  # IP <- reactive({ input$getIP })
-  #
-  # output$mymap <- renderLeaflet({
-  #   temp <- IP()$loc
-  #   temp <- as.numeric(unlist(str_split(temp,",")))
-  #   points <- data.frame(lat = temp[1], lon = temp[2])
-  #   leaflet() %>%
-  #     addProviderTiles(providers$Stadia.StamenTonerLite,
-  #                      options = providerTileOptions(noWrap = TRUE)
-  #     ) %>%
-  #     addMarkers(data = points)
-  # })
 }

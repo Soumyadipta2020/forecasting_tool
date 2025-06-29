@@ -18,9 +18,6 @@ ui <- shinydashboardPlus::dashboardPage(
     use_copy(),
     use_theme(dashboard_body_theme),
     tags$script(HTML("$('body').addClass('fixed');")),
-    # tags$head(
-    #   tags$script(src="getIP.js")
-    # ),
     ui_design,
     
     tabItems(
