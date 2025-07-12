@@ -4,13 +4,13 @@ ui <- shinydashboardPlus::dashboardPage(
   preloader = list(),
   skin = "blue",
   # options = list(sidebarExpandOnHover = TRUE),
-  
+
   ## dashboard header ####
   header = dashboard_header,
-  
+
   ## Sidebar ####
   sidebar = dashboard_sidebar,
-  
+
   ## Dashboard Body ####
   body = dashboardBody(
     useWaiter(),
@@ -19,7 +19,6 @@ ui <- shinydashboardPlus::dashboardPage(
     use_theme(dashboard_body_theme),
     tags$script(HTML("$('body').addClass('fixed');")),
     ui_design,
-    
     tabItems(
       ### Home tab ####
       home_tab,
@@ -31,9 +30,12 @@ ui <- shinydashboardPlus::dashboardPage(
   ),
   # right sidebar ####
   controlbar = right_control_bar,
-  
-  footer = dashboardFooter(right = tags$a(href = "https://sites.google.com/view/soumyadipta-das", "Soumyadipta Das"), 
-                           left = list(tags$img(src='brand_logo.png', 
-                                                height = '25', width ='25'), "© 2023")), 
+  footer = dashboardFooter(
+    right = tags$a(href = "https://sites.google.com/view/soumyadipta-das", "Soumyadipta Das"),
+    left = list(tags$img(
+      src = "brand_logo.png",
+      height = "25", width = "25"
+    ), "© 2023")
+  ),
   scrollToTop = TRUE
 )

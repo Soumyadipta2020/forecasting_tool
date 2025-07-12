@@ -6,7 +6,6 @@ right_control_bar <- dashboardControlbar(
   collapsed = FALSE,
   overlay = FALSE,
   width = 400,
-  
   controlbarMenu(
     id = "menu",
     controlbarItem(
@@ -30,23 +29,24 @@ right_control_bar <- dashboardControlbar(
             "Yi-1.5"
           ),
           selected = "Meta-Llama-3.2"
-        ), 
+        ),
         sliderInput(
           "temperature",
           "Temperature (gemini, llama-3.1 & Phi only)",
           min = 0,
           max = 1,
-          value = 0.5, 
+          value = 0.5,
           step = 0.1
         ),
         # Chat container #####
         tags$div(
           id = "chat-container",
-          tags$div(id = "chat-history", 
-                   style = "overflow-y: scroll; height: 280px; display: flex; flex-direction: column; 
-                     text-align:left;", 
-                   uiOutput("chat_history")),
-          
+          tags$div(
+            id = "chat-history",
+            style = "overflow-y: scroll; height: 280px; display: flex; flex-direction: column;
+                     text-align:left;",
+            uiOutput("chat_history")
+          ),
           tags$div(id = "chat-input", tags$form(
             textAreaInput(
               inputId = "prompt",
@@ -74,13 +74,11 @@ right_control_bar <- dashboardControlbar(
                   icon = icon("clipboard"),
                   text = ""
                 )
-                
               )
             )
           ))
         )
         # Chat Container end #####
-        
       )
     )
   )

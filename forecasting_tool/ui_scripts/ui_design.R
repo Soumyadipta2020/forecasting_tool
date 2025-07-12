@@ -1,17 +1,17 @@
 library(shiny)
 
 ui_design <- tags$head(tags$style(HTML('
-      
+
         .dropdown-menu {
           width: 300px !important;
         }
-       
-    
+
+
         /* logo */
         .skin-blue .main-header .logo {
                               background-color: #0066cc;
         }
-                              
+
         /* logo when hovered */
         .skin-blue .main-header .logo:hover {
                               background-color: #66b3ff;
@@ -20,7 +20,7 @@ ui_design <- tags$head(tags$style(HTML('
         /* navbar (rest of the header) */
         .skin-blue .main-header .navbar {
                               background-color: #0066cc;
-                              }        
+                              }
 
         /* main sidebar */
         /* .skin-blue .main-sidebar {
@@ -42,12 +42,12 @@ ui_design <- tags$head(tags$style(HTML('
         /* .skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
                               background-color: #ff69b4;
                               } */
-        /* toggle button when hovered  */                    
+        /* toggle button when hovered  */
          .skin-blue .main-header .navbar .sidebar-toggle:hover{
                               background-color: #66b3ff;
          }
-        
-        /* box header */                      
+
+        /* box header */
         .box.box-solid.box-primary>.box-header {
                 /*color: black;*/
                 background: #0066cc;
@@ -60,30 +60,30 @@ ui_design <- tags$head(tags$style(HTML('
                 border-right-color:#222d32;
                 border-top-color:#222d32;
                 background: #e6f2ff;
-         } 
-        
-        /* background */ 
+         }
+
+        /* background */
         .content-wrapper,.right-side {
           background-color: #e6f7ff;
         }
-        
+
         /* fluid page */
         /*.container-fluid { background-color: #cceeff; }*/
-        
+
         /* tab background */
         /*.nav-tabs {
             background-color: #cce6ff;
         }*/
-        
+
         /*.nav-tabs-custom .nav-tabs li.active:hover a, .nav-tabs-custom .nav-tabs li.active a {
             /*background-color: #99ccff;*/
             border-color: black;
         }
-        
+
         .nav-tabs-custom .nav-tabs li.active {
             border-top-color: black;
         }
-        
+
         /* pointer icons */
         .tick-list {
         list-style-type: none; /* Remove default bullets */
@@ -100,5 +100,5 @@ ui_design <- tags$head(tags$style(HTML('
           left: 0;
           color: green; /* Tick mark color */
         }
-        
+
          ')))

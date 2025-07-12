@@ -70,7 +70,7 @@ server <- function(input, output, session) {
       write.csv(temp, file, row.names = FALSE)
     }
   )
-  
+
   #### Data upload ####
   data_primary <- reactive({
     if (input$data_source == "Upload") {
@@ -1034,5 +1034,4 @@ server <- function(input, output, session) {
     rv$chat_history <- NULL
     updateTextInput(session, "prompt", value = "")
   })
-
 }
