@@ -7,9 +7,12 @@ server <- function(input, output, session) {
       tags$img(src = "brand_logo.png", height = "35", width = "35")
     } else {
       HTML(paste(
-        "<span style='font-size: 16px;'>", "AI Forecasting App", "</span>",
+        "<span style='font-size: 16px;'>",
+        "AI Forecasting App",
+        "</span>",
         "<span class='version-badge' style='border-radius: 10px; font-size: small; background-color: #545454;'>",
-        "&nbsp; v.0.03.4 &nbsp;", "</span>"
+        "&nbsp; v.0.03.4 &nbsp;",
+        "</span>"
       ))
     }
   })
@@ -78,15 +81,26 @@ server <- function(input, output, session) {
       df <- read.csv(input$file$datapath)
 
       ##### column type checking #####
-      col_type_check <- ((sum(1 * ((as.vector(sapply(df, class))) == "numeric")) +
-        sum(1 * ((as.vector(sapply(df, class))) == "integer"))) >= ncol(df) - 1)
+      col_type_check <- ((sum(
+        1 * ((as.vector(sapply(df, class))) == "numeric")
+      ) +
+        sum(1 * ((as.vector(sapply(df, class))) == "integer"))) >=
+        ncol(df) - 1)
       if (!col_type_check) {
         shinyFeedback::hideFeedback("file")
-        shinyFeedback::feedbackDanger("file", !col_type_check, "Invalid file format. Please download the template.")
+        shinyFeedback::feedbackDanger(
+          "file",
+          !col_type_check,
+          "Invalid file format. Please download the template."
+        )
       }
       req(col_type_check)
       shinyFeedback::hideFeedback("file")
-      shinyFeedback::feedbackSuccess("file", col_type_check, "Successfully Uploaded.")
+      shinyFeedback::feedbackSuccess(
+        "file",
+        col_type_check,
+        "Successfully Uploaded."
+      )
     } else if (input$data_source == "Sample") {
       req(input$load_mongo)
       df <- mongo_read(input$sample_data, "timeseries", mongo_url)
@@ -101,7 +115,9 @@ server <- function(input, output, session) {
       df <- data_primary()
 
       output$time_var <- renderUI({
-        selectInput("time_variable", "Select Time Variable",
+        selectInput(
+          "time_variable",
+          "Select Time Variable",
           choices = colnames(df),
           selected = colnames(df)[1]
         )
@@ -111,10 +127,17 @@ server <- function(input, output, session) {
       numeric_columns <- names(df)[sapply(df, is.numeric)]
 
       # Initialize datatable
-      dt <- datatable(df, editable = TRUE, filter = "top", selection = "none", rownames = FALSE)
+      dt <- datatable(
+        df,
+        editable = TRUE,
+        filter = "top",
+        selection = "none",
+        rownames = FALSE
+      )
       # Apply conditional formatting to each numeric column
       for (col_name in numeric_columns) {
-        brks <- seq(min(df[[col_name]], na.rm = TRUE),
+        brks <- seq(
+          min(df[[col_name]], na.rm = TRUE),
           max(df[[col_name]], na.rm = TRUE),
           length.out = 10
         )
@@ -141,10 +164,17 @@ server <- function(input, output, session) {
         df1[i, j] <<- v
 
         # Initialize datatable
-        dt <- datatable(df1, editable = TRUE, filter = "top", selection = "none", rownames = FALSE)
+        dt <- datatable(
+          df1,
+          editable = TRUE,
+          filter = "top",
+          selection = "none",
+          rownames = FALSE
+        )
         # Apply conditional formatting to each numeric column
         for (col_name in numeric_columns) {
-          brks <- seq(min(df1[[col_name]], na.rm = TRUE),
+          brks <- seq(
+            min(df1[[col_name]], na.rm = TRUE),
             max(df1[[col_name]], na.rm = TRUE),
             length.out = 10
           )
@@ -186,7 +216,15 @@ server <- function(input, output, session) {
         width = 3
       ),
       valueBox(
-        value = paste(round(sum(is.na(data_old())) / (nrow(data_old()) * ncol(data_old())) * 100, 1), "%"),
+        value = paste(
+          round(
+            sum(is.na(data_old())) /
+              (nrow(data_old()) * ncol(data_old())) *
+              100,
+            1
+          ),
+          "%"
+        ),
         subtitle = "Missing %",
         icon = shiny::icon("percentage"),
         color = "red",
@@ -233,14 +271,18 @@ server <- function(input, output, session) {
   #### graph y variable ####
   output$response_variable_graph <- renderUI({
     req(data_old())
-    selectInput("y_variable_graph", "Select Y Variable",
+    selectInput(
+      "y_variable_graph",
+      "Select Y Variable",
       choices = colnames(data_old())
     )
   })
   #### graph x variable ####
   output$x_variable_graph <- renderUI({
     req(data_old())
-    selectInput("x_variables_graph", "Select X Variables",
+    selectInput(
+      "x_variables_graph",
+      "Select X Variables",
       choices = setdiff(colnames(data_old()), input$y_variable_graph)
     )
   })
@@ -274,115 +316,142 @@ server <- function(input, output, session) {
   #### summary stat vars ####
   output$vars_stat <- renderUI({
     req(data())
-    selectInput("vars_stat_selected", "Select Variables",
-      choices = colnames(data()), multiple = TRUE, selected = NULL
+    selectInput(
+      "vars_stat_selected",
+      "Select Variables",
+      choices = colnames(data()),
+      multiple = TRUE,
+      selected = NULL
     )
   })
 
   #### Summary stat ####
-  data_prep_stat <- eventReactive(c(input$vars_stat_selected, input$upload_data), {
-    withProgress(message = "Loading....", {
-      req(!is.null(data()))
-      n <- nrow(data())
-      if (is.null(input$vars_stat_selected)) {
-        temp <- select_if(data(), is.numeric)
-        temp_cols <- colnames(temp)
-        temp_sum <- temp %>%
-          summarise_all(~ sum(.x, na.rm = TRUE)) %>%
-          mutate(type = "Sum")
-        temp_mean <- temp %>%
-          summarise_all(~ mean(.x, na.rm = TRUE)) %>%
-          mutate(type = "Mean")
-        temp_obs <- temp %>%
-          summarise_all(~ sum(.x, na.rm = TRUE) / mean(.x, na.rm = TRUE)) %>%
-          mutate(type = "Observations")
-        temp_median <- temp %>%
-          summarise_all(~ median(.x, na.rm = TRUE)) %>%
-          mutate(type = "Median")
-        temp_mode <- temp %>%
-          summarise_all(~ getmode(.x, na = TRUE)) %>%
-          mutate(type = "Mode")
-        temp_sd <- temp %>%
-          summarise_all(~ sd(.x, na = TRUE)) %>%
-          mutate(type = "Standard Deviation")
-        temp_var <- temp %>%
-          summarise_all(~ var(.x, na = TRUE)) %>%
-          mutate(type = "Variance")
-        temp_max <- temp %>%
-          summarise_all(~ max(.x, na.rm = TRUE)) %>%
-          mutate(type = "Maximum")
-        temp_min <- temp %>%
-          summarise_all(~ min(.x, na.rm = TRUE)) %>%
-          mutate(type = "Minimum")
-        temp_skew <- temp %>%
-          summarise_all(~ skewness(.x, na.rm = TRUE)) %>%
-          mutate(type = "skewness")
-        temp_kurt <- temp %>%
-          summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>%
-          mutate(type = "Kurtosis")
-        temp_iqr <- temp %>%
-          summarise_all(~ IQR(.x, na.rm = TRUE)) %>%
-          mutate(type = "Interquartile Range")
-        temp <- temp_sum %>%
-          bind_rows(
-            temp_obs, temp_mean, temp_median, temp_mode, temp_sd,
-            temp_var, temp_max, temp_min, temp_skew, temp_kurt, temp_iqr
-          ) %>%
-          select(type, all_of(temp_cols))
-      } else {
-        temp <- data() %>%
-          select(input$vars_stat_selected) %>%
-          select_if(is.numeric)
-        temp_sum <- temp %>%
-          summarise_all(~ sum(.x, na.rm = TRUE)) %>%
-          mutate(type = "Sum")
-        temp_mean <- temp %>%
-          summarise_all(~ mean(.x, na.rm = TRUE)) %>%
-          mutate(type = "Mean")
-        temp_obs <- temp %>%
-          summarise_all(~ sum(.x, na.rm = TRUE) / mean(.x, na.rm = TRUE)) %>%
-          mutate(type = "Observations")
-        temp_median <- temp %>%
-          summarise_all(~ median(.x, na.rm = TRUE)) %>%
-          mutate(type = "Median")
-        temp_mode <- temp %>%
-          summarise_all(~ getmode(.x, na = TRUE)) %>%
-          mutate(type = "Mode")
-        temp_sd <- temp %>%
-          summarise_all(~ sd(.x, na = TRUE)) %>%
-          mutate(type = "Standard Deviation")
-        temp_var <- temp %>%
-          summarise_all(~ var(.x, na = TRUE)) %>%
-          mutate(type = "Variance")
-        temp_max <- temp %>%
-          summarise_all(~ max(.x, na.rm = TRUE)) %>%
-          mutate(type = "Maximum")
-        temp_min <- temp %>%
-          summarise_all(~ min(.x, na.rm = TRUE)) %>%
-          mutate(type = "Minimum")
-        temp_skew <- temp %>%
-          summarise_all(~ skewness(.x, na.rm = TRUE)) %>%
-          mutate(type = "skewness")
-        temp_kurt <- temp %>%
-          summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>%
-          mutate(type = "Kurtosis")
-        temp_iqr <- temp %>%
-          summarise_all(~ IQR(.x, na.rm = TRUE)) %>%
-          mutate(type = "Interquartile Range")
-        temp <- temp_sum %>%
-          bind_rows(
-            temp_obs, temp_mean, temp_median, temp_mode, temp_sd,
-            temp_var, temp_max, temp_min, temp_skew, temp_kurt, temp_iqr
-          ) %>%
-          select(type, input$vars_stat_selected)
-      }
-      return(temp)
-    })
-  })
+  data_prep_stat <- eventReactive(
+    c(input$vars_stat_selected, input$upload_data),
+    {
+      withProgress(message = "Loading....", {
+        req(!is.null(data()))
+        n <- nrow(data())
+        if (is.null(input$vars_stat_selected)) {
+          temp <- select_if(data(), is.numeric)
+          temp_cols <- colnames(temp)
+          temp_sum <- temp %>%
+            summarise_all(~ sum(.x, na.rm = TRUE)) %>%
+            mutate(type = "Sum")
+          temp_mean <- temp %>%
+            summarise_all(~ mean(.x, na.rm = TRUE)) %>%
+            mutate(type = "Mean")
+          temp_obs <- temp %>%
+            summarise_all(~ sum(.x, na.rm = TRUE) / mean(.x, na.rm = TRUE)) %>%
+            mutate(type = "Observations")
+          temp_median <- temp %>%
+            summarise_all(~ median(.x, na.rm = TRUE)) %>%
+            mutate(type = "Median")
+          temp_mode <- temp %>%
+            summarise_all(~ getmode(.x, na = TRUE)) %>%
+            mutate(type = "Mode")
+          temp_sd <- temp %>%
+            summarise_all(~ sd(.x, na = TRUE)) %>%
+            mutate(type = "Standard Deviation")
+          temp_var <- temp %>%
+            summarise_all(~ var(.x, na = TRUE)) %>%
+            mutate(type = "Variance")
+          temp_max <- temp %>%
+            summarise_all(~ max(.x, na.rm = TRUE)) %>%
+            mutate(type = "Maximum")
+          temp_min <- temp %>%
+            summarise_all(~ min(.x, na.rm = TRUE)) %>%
+            mutate(type = "Minimum")
+          temp_skew <- temp %>%
+            summarise_all(~ skewness(.x, na.rm = TRUE)) %>%
+            mutate(type = "skewness")
+          temp_kurt <- temp %>%
+            summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>%
+            mutate(type = "Kurtosis")
+          temp_iqr <- temp %>%
+            summarise_all(~ IQR(.x, na.rm = TRUE)) %>%
+            mutate(type = "Interquartile Range")
+          temp <- temp_sum %>%
+            bind_rows(
+              temp_obs,
+              temp_mean,
+              temp_median,
+              temp_mode,
+              temp_sd,
+              temp_var,
+              temp_max,
+              temp_min,
+              temp_skew,
+              temp_kurt,
+              temp_iqr
+            ) %>%
+            select(type, all_of(temp_cols))
+        } else {
+          temp <- data() %>%
+            select(input$vars_stat_selected) %>%
+            select_if(is.numeric)
+          temp_sum <- temp %>%
+            summarise_all(~ sum(.x, na.rm = TRUE)) %>%
+            mutate(type = "Sum")
+          temp_mean <- temp %>%
+            summarise_all(~ mean(.x, na.rm = TRUE)) %>%
+            mutate(type = "Mean")
+          temp_obs <- temp %>%
+            summarise_all(~ sum(.x, na.rm = TRUE) / mean(.x, na.rm = TRUE)) %>%
+            mutate(type = "Observations")
+          temp_median <- temp %>%
+            summarise_all(~ median(.x, na.rm = TRUE)) %>%
+            mutate(type = "Median")
+          temp_mode <- temp %>%
+            summarise_all(~ getmode(.x, na = TRUE)) %>%
+            mutate(type = "Mode")
+          temp_sd <- temp %>%
+            summarise_all(~ sd(.x, na = TRUE)) %>%
+            mutate(type = "Standard Deviation")
+          temp_var <- temp %>%
+            summarise_all(~ var(.x, na = TRUE)) %>%
+            mutate(type = "Variance")
+          temp_max <- temp %>%
+            summarise_all(~ max(.x, na.rm = TRUE)) %>%
+            mutate(type = "Maximum")
+          temp_min <- temp %>%
+            summarise_all(~ min(.x, na.rm = TRUE)) %>%
+            mutate(type = "Minimum")
+          temp_skew <- temp %>%
+            summarise_all(~ skewness(.x, na.rm = TRUE)) %>%
+            mutate(type = "skewness")
+          temp_kurt <- temp %>%
+            summarise_all(~ kurtosis(.x, na.rm = TRUE)) %>%
+            mutate(type = "Kurtosis")
+          temp_iqr <- temp %>%
+            summarise_all(~ IQR(.x, na.rm = TRUE)) %>%
+            mutate(type = "Interquartile Range")
+          temp <- temp_sum %>%
+            bind_rows(
+              temp_obs,
+              temp_mean,
+              temp_median,
+              temp_mode,
+              temp_sd,
+              temp_var,
+              temp_max,
+              temp_min,
+              temp_skew,
+              temp_kurt,
+              temp_iqr
+            ) %>%
+            select(type, input$vars_stat_selected)
+        }
+        return(temp)
+      })
+    }
+  )
 
   output$summary_stat_table <- renderDT(
     data_prep_stat(),
-    filter = "top", selection = "none", rownames = FALSE
+    filter = "top",
+    selection = "none",
+    rownames = FALSE
   )
 
   #### Summary Stat download ####
@@ -397,68 +466,87 @@ server <- function(input, output, session) {
   )
 
   #### sumarry stat visualization ####
-  summary_stat_fig <- eventReactive(c(
-    input$vars_stat_selected, input$upload_data,
-    input$summary_stat_plot_type
-  ), {
-    withProgress(message = "Loading....", {
-      req(!is.null(data()))
+  summary_stat_fig <- eventReactive(
+    c(
+      input$vars_stat_selected,
+      input$upload_data,
+      input$summary_stat_plot_type
+    ),
+    {
+      withProgress(message = "Loading....", {
+        req(!is.null(data()))
 
-      if (is.null(input$vars_stat_selected)) {
-        temp <- select_if(data(), is.numeric)
-        temp_cols <- colnames(temp)
-      } else {
-        temp <- data() %>% select(input$vars_stat_selected)
-        temp_cols <- colnames(temp)
-      }
+        if (is.null(input$vars_stat_selected)) {
+          temp <- select_if(data(), is.numeric)
+          temp_cols <- colnames(temp)
+        } else {
+          temp <- data() %>% select(input$vars_stat_selected)
+          temp_cols <- colnames(temp)
+        }
 
-      nvar <- ncol(temp)
+        nvar <- ncol(temp)
 
-      if (input$summary_stat_plot_type == "Boxplot") {
-        fig <- plot_ly(y = temp[, 1], type = "box", quartilemethod = "linear", name = temp_cols[1])
-        if (nvar > 1) {
-          for (i in 2:nvar) {
-            fig <- fig %>% add_trace(y = temp[, i], quartilemethod = "inclusive", name = temp_cols[i])
+        if (input$summary_stat_plot_type == "Boxplot") {
+          fig <- plot_ly(
+            y = temp[, 1],
+            type = "box",
+            quartilemethod = "linear",
+            name = temp_cols[1]
+          )
+          if (nvar > 1) {
+            for (i in 2:nvar) {
+              fig <- fig %>%
+                add_trace(
+                  y = temp[, i],
+                  quartilemethod = "inclusive",
+                  name = temp_cols[i]
+                )
+            }
           }
-        }
-        fig <- fig %>% layout(title = "Boxplot")
-      } else if (input$summary_stat_plot_type == "Violin Plot") {
-        temp <- temp %>% pivot_longer(cols = temp_cols, names_to = "Vars", values_to = "values")
-        fig <- temp %>%
-          plot_ly(
-            x = ~Vars,
-            y = ~values,
-            split = ~Vars,
-            type = "violin",
-            box = list(
-              visible = T
-            ),
-            meanline = list(
-              visible = T
+          fig <- fig %>% layout(title = "Boxplot")
+        } else if (input$summary_stat_plot_type == "Violin Plot") {
+          temp <- temp %>%
+            pivot_longer(
+              cols = temp_cols,
+              names_to = "Vars",
+              values_to = "values"
             )
-          ) %>%
-          layout(title = "Violin Plot")
-      } else if (input$summary_stat_plot_type == "Histogram") {
-        fig <- plot_ly(alpha = 0.5)
-        for (i in 1:nvar) {
-          fig <- fig %>% add_histogram(x = temp[, i], name = temp_cols[i])
+          fig <- temp %>%
+            plot_ly(
+              x = ~Vars,
+              y = ~values,
+              split = ~Vars,
+              type = "violin",
+              box = list(
+                visible = T
+              ),
+              meanline = list(
+                visible = T
+              )
+            ) %>%
+            layout(title = "Violin Plot")
+        } else if (input$summary_stat_plot_type == "Histogram") {
+          fig <- plot_ly(alpha = 0.5)
+          for (i in 1:nvar) {
+            fig <- fig %>% add_histogram(x = temp[, i], name = temp_cols[i])
+          }
+          fig <- fig %>%
+            layout(barmode = "overlay") %>%
+            layout(title = "Histogram")
         }
-        fig <- fig %>%
-          layout(barmode = "overlay") %>%
-          layout(title = "Histogram")
-      }
-    })
+      })
 
-
-    return(fig)
-  })
+      return(fig)
+    }
+  )
   output$summary_stat_vis <- renderPlotly(summary_stat_fig())
-
 
   #### model y variable ####
   output$response_variable <- renderUI({
     req(data())
-    selectInput("response_variable", "Select Response Variable",
+    selectInput(
+      "response_variable",
+      "Select Response Variable",
       choices = colnames(data())
     )
   })
@@ -466,7 +554,9 @@ server <- function(input, output, session) {
   output$x_variables <- renderUI({
     req(data(), input$response_variable, input$data_type, input$upload_data)
     if (input$data_type == "Non-Time Series") {
-      selectInput("x_variables", "Select X Variables",
+      selectInput(
+        "x_variables",
+        "Select X Variables",
         choices = setdiff(colnames(data()), input$response_variable),
         multiple = TRUE
       )
@@ -480,7 +570,10 @@ server <- function(input, output, session) {
     if (input$data_type == "Time Series") {
       if (input$seasonal) {
         if (!is.null(input$seasonal_period)) {
-          ts(data()[[input$response_variable]], frequency = input$seasonal_period)
+          ts(
+            data()[[input$response_variable]],
+            frequency = input$seasonal_period
+          )
         } else {
           freq <- forecast::findfrequency(data()[[input$response_variable]])
           if (is.null(freq)) {
@@ -505,7 +598,8 @@ server <- function(input, output, session) {
     withProgress(message = "Loading...", {
       if (input$data_type == "Time Series") {
         req(tsData(), input$model)
-        model <- switch(input$model,
+        model <- switch(
+          input$model,
           "ARIMA" = auto.arima(tsData()),
           "SARIMA" = auto.arima(tsData(), seasonal = TRUE),
           "ARFIMA" = arfima_forecast(tsData(), input$horizon),
@@ -524,12 +618,16 @@ server <- function(input, output, session) {
           "ETS" = forecast::forecast(tsData(), h = input$horizon),
           "GRNN" = grnn_forecasting(tsData(), h = input$horizon),
           "Neural Network" = forecast::nnetar(tsData(), lambda = "auto"),
-          "State Space ARIMA" = smooth::auto.ssarima(tsData(),
+          "State Space ARIMA" = smooth::auto.ssarima(
+            tsData(),
             h = input$horizon,
             initial = "backcasting",
             ic = "BICc"
           ),
-          "Prophet" = prophet(data.frame(ds = c(1:length(tsData())), y = tsData()))
+          "Prophet" = prophet(data.frame(
+            ds = c(1:length(tsData())),
+            y = tsData()
+          ))
           # uncertainty.samples = 10,
           # mcmc.samples = 10)
         )
@@ -557,18 +655,27 @@ server <- function(input, output, session) {
       if (input$data_type == "Non-Time Series") {
         req(!is.null(input$response_variable), input$x_variables, input$model1)
 
-        model <- switch(input$model1,
+        model <- switch(
+          input$model1,
           "Linear Regression" = {
             model_fit <- lm(
               data = data(),
-              formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + ")))
+              formula = as.formula(paste(
+                input$response_variable,
+                "~",
+                paste(input$x_variables, collapse = " + ")
+              ))
             )
             model_fit
           },
           "GLM" = {
             model_fit <- glm(
               data = data(),
-              formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + "))),
+              formula = as.formula(paste(
+                input$response_variable,
+                "~",
+                paste(input$x_variables, collapse = " + ")
+              )),
               family = gaussian
             )
             model_fit
@@ -576,7 +683,11 @@ server <- function(input, output, session) {
           "Logistic Regression" = {
             model_fit <- glm(
               data = data(),
-              formula = as.formula(paste(input$response_variable, "~", paste(input$x_variables, collapse = " + "))),
+              formula = as.formula(paste(
+                input$response_variable,
+                "~",
+                paste(input$x_variables, collapse = " + ")
+              )),
               family = binomial
             )
             model_fit
@@ -591,7 +702,8 @@ server <- function(input, output, session) {
             model_fit <- glmnet(
               x = as.matrix(data()[input$x_variables]),
               y = data()[input$response_variable][, 1],
-              alpha = 1, lambda = best_lambda
+              alpha = 1,
+              lambda = best_lambda
             )
             model_fit
           },
@@ -605,7 +717,8 @@ server <- function(input, output, session) {
             model_fit <- glmnet(
               x = as.matrix(data()[input$x_variables]),
               y = data()[input$response_variable][, 1],
-              alpha = 0, lambda = best_lambda
+              alpha = 0,
+              lambda = best_lambda
             )
             model_fit
           }
@@ -613,12 +726,23 @@ server <- function(input, output, session) {
 
         if (!is.null(model)) {
           # Check if forecast function exists
-          if (input$model1 %in% c("Linear Regression", "GLM", "Logistic Regression")) {
-            forecast_values <- predict(model, newdata = data.frame(data()[input$x_variables]))
+          if (
+            input$model1 %in%
+              c("Linear Regression", "GLM", "Logistic Regression")
+          ) {
+            forecast_values <- predict(
+              model,
+              newdata = data.frame(data()[input$x_variables])
+            )
             forecast_values <- as.numeric(forecast_values)
-          } else if (input$model1 %in% c("Classification", "LASSO", "Ridge Regression")) {
+          } else if (
+            input$model1 %in% c("Classification", "LASSO", "Ridge Regression")
+          ) {
             # For non-time series data, use the fitted model to get forecasted values
-            forecast_values <- predict(model, newx = as.matrix(data()[input$x_variables]))
+            forecast_values <- predict(
+              model,
+              newx = as.matrix(data()[input$x_variables])
+            )
             print(forecast_values)
             forecast_values <- as.numeric(forecast_values)
           }
@@ -660,12 +784,15 @@ server <- function(input, output, session) {
         )
       }
 
-
       if (!is.null(forecastData())) {
         if (input$data_type == "Time Series") {
           forecast_values <- forecastData()$Forecast
           forecast_length <- input$horizon
-          forecast_dates <- seq(time(tsData())[length(tsData())] + 1 / 12, by = 1 / 12, length.out = forecast_length)
+          forecast_dates <- seq(
+            time(tsData())[length(tsData())] + 1 / 12,
+            by = 1 / 12,
+            length.out = forecast_length
+          )
 
           forecast_plot_data <- data.frame(
             x = c(time(tsData()), forecast_dates),
@@ -687,10 +814,23 @@ server <- function(input, output, session) {
           )
         }
 
-
         plot_ly() %>%
-          add_trace(data = plot_data, x = ~x, y = ~y, type = "scatter", mode = "lines", name = "Data") %>%
-          add_trace(data = forecast_plot_data, x = ~x, y = ~y, type = "scatter", mode = "lines", name = "Forecast") %>%
+          add_trace(
+            data = plot_data,
+            x = ~x,
+            y = ~y,
+            type = "scatter",
+            mode = "lines",
+            name = "Data"
+          ) %>%
+          add_trace(
+            data = forecast_plot_data,
+            x = ~x,
+            y = ~y,
+            type = "scatter",
+            mode = "lines",
+            name = "Forecast"
+          ) %>%
           layout(
             title = "Actual Data and Forecast",
             xaxis = list(title = "Time"),
@@ -698,7 +838,14 @@ server <- function(input, output, session) {
           )
       } else {
         plot_ly() %>%
-          add_trace(data = plot_data, x = ~x, y = ~y, type = "scatter", mode = "lines", name = "Data") %>%
+          add_trace(
+            data = plot_data,
+            x = ~x,
+            y = ~y,
+            type = "scatter",
+            mode = "lines",
+            name = "Data"
+          ) %>%
           layout(
             title = "Actual Data",
             xaxis = list(title = "Time"),
@@ -711,7 +858,11 @@ server <- function(input, output, session) {
   #### download forecast ####
   output$download <- downloadHandler(
     filename = function() {
-      paste0("forecast_", if_else(input$data_type == "Time Series", input$model, input$model1), ".csv")
+      paste0(
+        "forecast_",
+        if_else(input$data_type == "Time Series", input$model, input$model1),
+        ".csv"
+      )
     },
     content = function(file) {
       if (!is.null(forecastData())) {
@@ -746,7 +897,6 @@ server <- function(input, output, session) {
     summary(forecastData()$Model)
   })
 
-
   #### Model Accuracy ####
   output$model_accuracy <- renderUI({
     req(!is.null(forecastData()))
@@ -757,37 +907,61 @@ server <- function(input, output, session) {
 
     list(
       valueBox(
-        value = paste(round(MLmetrics::MAPE(forecast_values, y) * 100, 1), "%", sep = " "),
+        value = paste(
+          round(MLmetrics::MAPE(forecast_values, y) * 100, 1),
+          "%",
+          sep = " "
+        ),
         subtitle = "MAPE",
         icon = shiny::icon("star-half-stroke"),
-        color = ifelse(MLmetrics::MAPE(forecast_values, y) < 0.1, "green",
-          ifelse(MLmetrics::MAPE(forecast_values, y) >= 0.1 &
-            MLmetrics::MAPE(forecast_values, y) < 0.2, "yellow",
-          "red"
+        color = ifelse(
+          MLmetrics::MAPE(forecast_values, y) < 0.1,
+          "green",
+          ifelse(
+            MLmetrics::MAPE(forecast_values, y) >= 0.1 &
+              MLmetrics::MAPE(forecast_values, y) < 0.2,
+            "yellow",
+            "red"
           )
         ),
         width = 4
       ),
       valueBox(
-        value = paste(round(MLmetrics::RMSPE(forecast_values, y) * 100, 1), "%", sep = " "),
+        value = paste(
+          round(MLmetrics::RMSPE(forecast_values, y) * 100, 1),
+          "%",
+          sep = " "
+        ),
         subtitle = "RMSPE",
         icon = shiny::icon("square-root-variable"),
-        color = ifelse(MLmetrics::RMSPE(forecast_values, y) < 0.1, "green",
-          ifelse(MLmetrics::RMSPE(forecast_values, y) >= 0.1 &
-            MLmetrics::RMSPE(forecast_values, y) < 0.2, "yellow",
-          "red"
+        color = ifelse(
+          MLmetrics::RMSPE(forecast_values, y) < 0.1,
+          "green",
+          ifelse(
+            MLmetrics::RMSPE(forecast_values, y) >= 0.1 &
+              MLmetrics::RMSPE(forecast_values, y) < 0.2,
+            "yellow",
+            "red"
           )
         ),
         width = 4
       ),
       valueBox(
-        value = paste(round(MLmetrics::R2_Score(forecast_values, y) * 100, 1), "%", sep = " "),
+        value = paste(
+          round(MLmetrics::R2_Score(forecast_values, y) * 100, 1),
+          "%",
+          sep = " "
+        ),
         subtitle = "R2 Score",
         icon = shiny::icon("window-restore"),
-        color = ifelse(MLmetrics::R2_Score(forecast_values, y) > 0.85, "green",
-          ifelse(MLmetrics::R2_Score(forecast_values, y) <= 0.85 &
-            MLmetrics::R2_Score(forecast_values, y) > 0.7, "yellow",
-          "red"
+        color = ifelse(
+          MLmetrics::R2_Score(forecast_values, y) > 0.85,
+          "green",
+          ifelse(
+            MLmetrics::R2_Score(forecast_values, y) <= 0.85 &
+              MLmetrics::R2_Score(forecast_values, y) > 0.7,
+            "yellow",
+            "red"
           )
         ),
         width = 4
@@ -969,7 +1143,6 @@ server <- function(input, output, session) {
         )[[1]][[1]]
     }
 
-
     response <- gsub(" \nAssistant:\n", "", response)
 
     ##### update history & render #####
@@ -977,9 +1150,11 @@ server <- function(input, output, session) {
       update_history(rv$chat_history, input$prompt, response)
 
     output$chat_history <-
-      renderUI(map(rv$chat_history, \(x) markdown(
-        glue("<h3>{x$role}:</h3> \n\n{x$content}")
-      )))
+      renderUI(map(rv$chat_history, \(x) {
+        markdown(
+          glue("<h3>{x$role}:</h3> \n\n{x$content}")
+        )
+      }))
 
     w$hide()
 
@@ -1024,7 +1199,6 @@ server <- function(input, output, session) {
       text = as.character(final$output)
     )
   })
-
 
   #### Clear history ####
   observeEvent(input$remove_chatThread, {
